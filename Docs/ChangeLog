@@ -1,0 +1,14 @@
+Changelog For Users
+------------------_
+Last Changed: $Revision$ $Date$
+
+
+Revision: 2096 Date: 2006-05-31 16:25:35 +0200 (Wed, 31 May 2006)
+-----------------------------------------------------------------
+*	Added UsersDecorator::getUsername()
+
+*	Changed UsersDecorator::getUID()
+		this function is not abstract any more, instead a simple
+		implementation of getUID() have been implemented
+
+*	ChangeLog Started
