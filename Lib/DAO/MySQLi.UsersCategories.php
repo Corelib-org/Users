@@ -25,8 +25,17 @@ class MySQLi_UsersCategories extends DatabaseDAO implements Singleton,DAO_UsersC
 	public function getCategories($uid) {
 		$query = 'SELECT category, pk_categories
 		          FROM tbl_users_has_categories
-		          INNER JOIN tbl_categories ON fk_categories=pk_categories
+		          LEFT JOIN tbl_categories ON fk_categories=pk_categories
 		          WHERE fk_users=\''.$uid.'\'';
+		return $this->slaveQuery(new MySQLiQuery($query));		
+	}
+	public function getCategoriesCount($uid) {
+		$query = 'SELECT category, pk_categories, COUNT(tbl_weblog_has_categories.fk_categories) AS count
+		          FROM tbl_users_has_categories
+		          LEFT JOIN tbl_categories ON fk_categories=pk_categories
+		          LEFT JOIN tbl_weblog_has_categories ON tbl_weblog_has_categories.fk_categories=tbl_users_has_categories.fk_categories
+		          WHERE fk_users=\''.$uid.'\'
+				  GROUP BY pk_categories';
 		return $this->slaveQuery(new MySQLiQuery($query));		
 	}
 }

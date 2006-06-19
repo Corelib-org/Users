@@ -14,8 +14,8 @@ class UsersCategory extends UserDecorator {
 	
 	const LIBRARY = 'UsersCategories';
 	
-	public function __construct($id=null,$category=null){
-		$this->set($id,$category);
+	public function __construct($id=null,$category=null,$count=null){
+		$this->set($id,$category,$count);
 	}
 	
 	public function getXML(DOMDocument $xml){
@@ -26,8 +26,8 @@ class UsersCategory extends UserDecorator {
 		return $this->decorator->getUID();	
 	}
 	
-	public function set($id=null,$category=null){
-		$this->category = new Category($id,$category);
+	public function set($id=null,$category=null,$count=null){
+		$this->category = new Category($id,$category,$count);
 	}
 	
 	public function save(){
@@ -53,9 +53,13 @@ class UsersCategory extends UserDecorator {
 
 class UsersCategories extends UserDecorator  {
 	private $categories = array();
+	private $count;
 	
 	const LIBRARY = 'UsersCategories';
 	
+	public function __construct($count=false){
+		$this->count = $count;
+	}
 	public function setCategory($id,$category=null){
 		$usercat = new UsersCategory($id,$category);
 		$usercat->decorate($this->decorator);
@@ -71,7 +75,11 @@ class UsersCategories extends UserDecorator  {
 		$DOMCategories = $xml->createElement('categories');
 		$res = $this->_getCategories();
 		while($out = $res->fetchArray()){
-			$cat = new UsersCategory($out['pk_categories'],$out['category']);
+			if($this->count == true) {
+				$cat = new UsersCategory($out['pk_categories'],$out['category'],$out['count']);
+			} else {
+				$cat = new UsersCategory($out['pk_categories'],$out['category']);
+			}
 			$DOMCategories->appendChild($cat->getXML($xml));
 		}
 		return $this->buildXML($xml, $DOMCategories);
@@ -80,7 +88,11 @@ class UsersCategories extends UserDecorator  {
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO(self::LIBRARY, self::LIBRARY);
 		}
-		return $this->dao->getCategories($this->getID());
+		if($this->count == true) {
+			return $this->dao->getCategoriesCount($this->getID());
+		} else {
+			return $this->dao->getCategories($this->getID());
+		}
 	}
 	public function getID(){
 		return $this->decorator->getUID();
