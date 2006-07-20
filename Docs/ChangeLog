@@ -2,7 +2,20 @@ Changelog For Users
 ------------------_
 Last Changed: $Revision$ $Date$
 
+$Revision$ $Date$
+-----------------------------------------------------------------
+*	Added Users::updateLastTimestamp($timestamp=null)
+		This allows to set last_timestamp
+		
+*	Added DAO_User::updateLastTimestamp($id, $timestamp)
+		This allow to set last_timestamp, see also 
+		Users::updateLastTimestamp
+		
+* 	Added MySQLi_User::updateLastTimestamp($id, $timestamp)
+		This allow to set last_timestamp, see also 
+		Users::updateLastTimestamp
 
+		
 Revision: 2096 Date: 2006-05-31 16:25:35 +0200 (Wed, 31 May 2006)
 -----------------------------------------------------------------
 *	Added UsersDecorator::getUsername()

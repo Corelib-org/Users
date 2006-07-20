@@ -53,7 +53,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 				$activation_string = '\''.$activation_string.'\'';	
 			}
 			$query = 'INSERT INTO tbl_users(username, password, email, create_timestamp, activation_string)
-			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', \''.$created.'\', '.$activation_string.')';
+			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', FROM_UNIXTIME(\''.$created.'\'), '.$activation_string.')';
 			$query = $this->masterQuery(new MySQLiQuery($query));
 			return $query->getInsertID();
 		}
@@ -105,6 +105,18 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		} else {        
 			return false;
 			
+		}
+	}
+	
+	public function updateLastTimestamp($id, $timestamp){
+		$query = 'UPDATE tbl_users 
+		          SET last_timestamp = FROM_UNIXTIME(\''.$timestamp.'\')
+		          WHERE pk_users=\''.$id.'\'';
+		$query = $this->masterQuery(new MySQLiQuery($query));
+		if($query->getAffectedRows() > 0){
+			return true;
+		} else {        
+			return false;
 		}
 	}
 	

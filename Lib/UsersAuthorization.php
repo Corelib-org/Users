@@ -130,6 +130,7 @@ class UsersAuthorization extends UserDecorator implements Singleton {
 			$this->ip = $_SERVER['REMOTE_ADDR'];
 			$this->reloadPermissions();
 			$this->store();
+			$this->decorator->updateLastTimestamp();
 			return true;
 		} else {
 			return false;	

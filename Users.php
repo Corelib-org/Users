@@ -78,6 +78,7 @@ interface DAO_User {
 	public function getUserById($id);
 	public function validate($string);
 	public function update($id, $username, $password, $email);
+	public function updateLastTimestamp($id, $timestamp);
 }
 
 class User extends UserDecorator {
@@ -117,6 +118,14 @@ class User extends UserDecorator {
 			$this->_setFromArray($array);
 		}
 	}
+	
+	public function updateLastTimestamp($timestamp=null){
+		if(is_null($timestamp)){
+			$timestamp = time();
+		}
+		return $this->dao->updateLastTimestamp($this->id, $timestamp);
+	}
+	
 	
 	public function create(){
 		try {
