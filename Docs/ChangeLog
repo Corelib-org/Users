@@ -4,6 +4,12 @@ Last Changed: $Revision$ $Date$
 
 $Revision$ $Date$
 -----------------------------------------------------------------
+*	Changed Database structure on tbl_users
+		create_timestamp converted from integer to timestamp
+		last_timestamp converted from integer to timestamp
+
+Revision: 2497 Date: 2006-07-20 14:18:29 +0200 (Thu, 20 Jul 2006)
+-----------------------------------------------------------------
 *	Added Users::updateLastTimestamp($timestamp=null)
 		This allows to set last_timestamp
 		
