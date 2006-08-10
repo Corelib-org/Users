@@ -36,7 +36,8 @@ class UsersCategory extends UserDecorator {
 				$this->dao = Database::getDAO(self::LIBRARY, self::LIBRARY);
 			}
 			$id = $this->category->commit();
-			$this->dao->setCategory($this->getID(), $id);	
+			$this->dao->setCategory($this->getID(), $id);
+			return $id;	
 		}
 	}
 	public function delete() {
