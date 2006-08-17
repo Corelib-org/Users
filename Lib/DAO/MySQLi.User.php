@@ -60,7 +60,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	}
 	
 	public function getUserByName($username){
-		$query = 'SELECT pk_users, username, password, email, activation_string, create_timestamp, last_timestamp
+		$query = 'SELECT pk_users, username, password, email, activation_string, UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, UNIX_TIMESTAMP(last_timestamp) AS last_timestamp
 		          FROM tbl_users
 		          WHERE username LIKE \''.$username.'\'
 				  AND activation_string IS NULL';
@@ -68,14 +68,14 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		return $query->fetchArray();
 	}
 	public function getUserByEmail($email){
-		$query = 'SELECT pk_users, username, password, email, activation_string, create_timestamp, last_timestamp
+		$query = 'SELECT pk_users, username, password, email, activation_string, UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, UNIX_TIMESTAMP(last_timestamp) AS last_timestamp
 		          FROM tbl_users
 		          WHERE email=\''.$email.'\'';
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		return $query->fetchArray();
 	}
 	public function getUserById($id){
-		$query = 'SELECT pk_users, username, password, email, activation_string, create_timestamp, last_timestamp
+		$query = 'SELECT pk_users, username, password, email, activation_string, UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, UNIX_TIMESTAMP(last_timestamp) AS last_timestamp
 		          FROM tbl_users
 		          WHERE pk_users=\''.$id.'\'';
 		$query = $this->slaveQuery(new MySQLiQuery($query));
