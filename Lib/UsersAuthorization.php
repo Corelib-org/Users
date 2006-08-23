@@ -1,4 +1,10 @@
 <?php
+interface DAO_UserAuthorization {
+	public function getUserPermissions($userid);
+	public function getUserReversePermissions($userid);
+	public function getUserRolesPermissions($userid, $roleid=null);
+	public function getUserGroupsPermissions($userid, $groupid=null);
+}
 
 class UsersAuthorizationConfirmEvent implements EventTypeHandler,Observer  {
 	private $subject = null;
@@ -64,6 +70,11 @@ class UsersAuthorization extends UserDecorator implements Singleton {
 	private $permissions = array();
 	
 	/**
+	 * @var DAO_UserAuthorization
+	 */
+	protected $dao = null;
+	
+	/**
 	 *	@return UsersAuthorization
 	 */
 	public static function getInstance(){
@@ -116,7 +127,28 @@ class UsersAuthorization extends UserDecorator implements Singleton {
 	}
 	
 	public function reloadPermissions(){
+		if(is_null($this->dao)){
+			$this->dao = Database::getDAO(null, __CLASS__);
+		}
 		$this->permissions = array('LOGGED_IN');
+		$res = $this->dao->getUserGroupsPermissions($this->decorator->getUID());
+		while($out = $res->fetchArray()){
+			$this->permissions[$out['pk_permissions']] = $out['permissions_ident'];
+		}
+		$res = $this->dao->getUserPermissions($this->decorator->getUID());
+		while($out = $res->fetchArray()){
+			$this->permissions[$out['pk_permissions']] = $out['permissions_ident'];
+		}
+		$res = $this->dao->getUserRolesPermissions($this->decorator->getUID());
+		while($out = $res->fetchArray()){
+			$this->permissions[$out['pk_permissions']] = $out['permissions_ident'];
+		}
+		$res = $this->dao->getUserReversePermissions($this->decorator->getUID());
+		while($out = $res->fetchArray()){
+			if(isset($this->permissions[$out['pk_permissions']])){
+				unset($this->permissions[$out['pk_permissions']]);
+			}
+		}
 	}
 	
 	public function isAuthed(){

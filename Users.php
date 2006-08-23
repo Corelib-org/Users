@@ -344,6 +344,7 @@ class User extends UserDecorator {
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
 		}
+		$this->activation_string = null;
 		return $this->dao->validate($string);
 	}
 	
