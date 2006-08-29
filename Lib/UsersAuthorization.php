@@ -139,10 +139,10 @@ class UsersAuthorization extends UserDecorator implements Singleton {
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
 		}
-		$res = $this->dao->getUserRolesPermissions($this->decorator->getUID());
+/*		$res = $this->dao->getUserRolesPermissions($this->decorator->getUID());
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
-		}
+		} */
 		$res = $this->dao->getUserReversePermissions($this->decorator->getUID());
 		while($out = $res->fetchArray()){
 			if(isset($this->permissions[$out['pk_users_permissions']])){
