@@ -55,7 +55,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 			$query = 'INSERT INTO tbl_users(username, password, email, create_timestamp, activation_string)
 			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', FROM_UNIXTIME(\''.$created.'\'), '.$activation_string.')';
 			$query = $this->masterQuery(new MySQLiQuery($query));
-			return $query->getInsertID();
+			return (int) $query->getInsertID();
 		}
 	}
 	

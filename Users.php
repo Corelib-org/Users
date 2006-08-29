@@ -282,7 +282,7 @@ class User extends UserDecorator {
 	}
 	
 	private function _setFromArray($array){
-		$this->id = $array['pk_users'];
+		$this->id = (int) $array['pk_users'];
 		if(isset($array['email'])){
 			$this->email = $array['email'];
 		}
