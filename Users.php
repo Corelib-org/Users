@@ -282,7 +282,11 @@ class User extends UserDecorator {
 	}
 	
 	private function _setFromArray($array){
-		$this->id = (int) $array['pk_users'];
+		if(!is_null($array['pk_users'])){
+			$this->id = (int) $array['pk_users'];
+		} else {
+			$this->id = $array['pk_users'];
+		}
 		if(isset($array['email'])){
 			$this->email = $array['email'];
 		}
@@ -307,7 +311,7 @@ class User extends UserDecorator {
 	public function getByUsername($username){
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
-		}			
+		}	
 		$this->_setFromArray($this->dao->getUserByName($username));
 		if(is_null($this->id)){
 			return false;	
