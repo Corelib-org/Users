@@ -123,6 +123,9 @@ class User extends UserDecorator {
 		if(is_null($timestamp)){
 			$timestamp = time();
 		}
+		if(is_null($this->dao)){
+			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+		}		
 		return $this->dao->updateLastTimestamp($this->id, $timestamp);
 	}
 	

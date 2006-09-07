@@ -34,7 +34,8 @@ class MySQLi_UsersCategories extends DatabaseDAO implements Singleton,DAO_UsersC
 		          FROM tbl_users_has_categories
 		          LEFT JOIN tbl_categories ON fk_categories=pk_categories
 		          LEFT JOIN tbl_weblog_has_categories ON tbl_weblog_has_categories.fk_categories=tbl_users_has_categories.fk_categories
-		          WHERE fk_users=\''.$uid.'\'
+		          LEFT JOIN tbl_weblog ON fk_weblog=pk_weblog
+		          WHERE tbl_users_has_categories.fk_users=\''.$uid.'\' AND tbl_weblog.state = \'PUBLIC\' AND closed = \'FALSE\'
 				  GROUP BY pk_categories';
 		return $this->slaveQuery(new MySQLiQuery($query));		
 	}
