@@ -124,7 +124,6 @@ class Permission implements Output {
 
 class PermissionRole {
 	private $id = null;
-	
 }
 
 class PermissionGroup {
@@ -138,7 +137,6 @@ class UsersPermissions extends UserDecorator {
 	private $permission_list = array();
 	private $role_list = array();
 	private $group_list = array();
-
 	
 	public function revokePermission(Permission $permission){
 		if(isset($this->permission_list[$permission->getID()])){
