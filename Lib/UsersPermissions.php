@@ -161,7 +161,7 @@ class UsersPermissions extends UserDecorator {
 						return true;
 					}
 				}
-			} catch (Exception $base){
+			} catch (Exception $e){
 				echo $e;
 				return false;
 			}
@@ -170,6 +170,25 @@ class UsersPermissions extends UserDecorator {
 		}
 		return false;
 	}
+	public function grantPermissionAddExpireInSeconds(Permission $permission, $expire, $comment=null){
+		try {
+			StrictTypes::toString($expire);
+		} catch (Exception $e){
+			echo $e;
+			return false;
+		}
+		if(is_null($this->dao)){
+			$this->dao = Database::getDAO('UsersPermissions','UsersPermissions');
+		}
+		$timestamp = $this->dao->getPermissionExpirationTimestamp($this->decorator->getUID(), $permission->getID());
+		if(is_null($timestamp)){
+			$timestamp = time();
+		}
+		$timestamp = $timestamp + $expire;
+		return $this->grantPermission($permission, $expire, $comment);
+	}
+	
+	
 	public function addRoleMembership(PermissionRole $role, $expire=null, $comment=null){
 		if(!isset($this->role_list[$role->getID()])){
 			if($this->dao->addRoleMembership($this->decorator->getUID(), $role->getID())){
@@ -232,5 +251,6 @@ interface DAO_UserPermissions {
 	public function setPermissionInformation($id, $ident, $name=null);
 	public function getPermissionById($id);
 	public function grantPermission($userid, $id, $expire=null, $comment=null);
+	public function getPermissionExpirationTimestamp($userid, $id);
 }
 ?>
