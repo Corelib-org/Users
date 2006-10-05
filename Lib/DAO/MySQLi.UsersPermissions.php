@@ -65,7 +65,7 @@ class MySQLi_UsersPermissions extends DatabaseDAO implements Singleton,DAO_UserP
 	public function getPermissionExpirationTimestamp($userid, $id){
 		$query = 'SELECT UNIX_TIMESTAMP(expire) as expire
 		          FROM tbl_users_has_permissions
-		          WHERE fk_users=\''.$userid.'\' AND fk_permissions=\''.$ud.'\'';
+		          WHERE fk_users=\''.$userid.'\' AND fk_users_permissions=\''.$id.'\'';
 		$query = $this->masterQuery(new MySQLiQuery($query));
 		$query = $query->fetchArray();
 		return $query['expire'];

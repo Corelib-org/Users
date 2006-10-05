@@ -180,14 +180,20 @@ class UsersPermissions extends UserDecorator {
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO('UsersPermissions','UsersPermissions');
 		}
-		$timestamp = $this->dao->getPermissionExpirationTimestamp($this->decorator->getUID(), $permission->getID());
+		$timestamp = $this->getPermissionExpirationTimestamp($permission);
 		if(is_null($timestamp)){
 			$timestamp = time();
 		}
 		$timestamp = $timestamp + $expire;
-		return $this->grantPermission($permission, $expire, $comment);
-	}
+		return $this->grantPermission($permission, $timestamp, $comment);
+	} 
 	
+	public function getPermissionExpirationTimestamp(Permission $permission){
+		if(is_null($this->dao)){
+			$this->dao = Database::getDAO('UsersPermissions','UsersPermissions');
+		}
+		return $this->dao->getPermissionExpirationTimestamp($this->decorator->getUID(), $permission->getID());
+	}
 	
 	public function addRoleMembership(PermissionRole $role, $expire=null, $comment=null){
 		if(!isset($this->role_list[$role->getID()])){
