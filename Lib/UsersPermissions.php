@@ -150,8 +150,8 @@ class UsersPermissions extends UserDecorator {
 	public function grantPermission(Permission $permission, $expire=null, $comment=null){
 		if(!isset($this->permission_list[$permission->getID()])){
 			try {
-				if(!is_null($expire) && !is_integer($expire)){
-					throw new BaseException('$expire, is not integer or null: '.gettype($ident).':'.strlen($ident));
+				if(!is_null($expire) && !StrictTypes::isInteger($expire)){
+					throw new BaseException('$expire, is not integer or null: '.gettype($expire).':'.strlen($expire));
 				} else {
 					if(is_null($this->dao)){
 						$this->dao = Database::getDAO('UsersPermissions','UsersPermissions');
@@ -161,7 +161,7 @@ class UsersPermissions extends UserDecorator {
 						return true;
 					}
 				}
-			} catch (Exception $e){
+			} catch (BaseException $e){
 				echo $e;
 				return false;
 			}
