@@ -19,7 +19,7 @@ class MySQLi_UsersAuthorization extends DatabaseDAO implements Singleton,DAO_Use
 				$query = 'SELECT pk_users_permissions, permission_ident
 				          FROM tbl_users_has_permissions
 				          INNER JOIN tbl_users_permissions ON fk_users_permissions=pk_users_permissions
-				          WHERE fk_users=\''.$userid.'\' AND expire > NOW()';
+				          WHERE fk_users=\''.$userid.'\' AND (expire > NOW() OR expire IS NULL)';
 				$res = $this->slaveQuery(new MySQLiQuery($query));
 			} else {
 				throw new BaseException('$userid not specified, or incorrect datatype');
