@@ -238,6 +238,15 @@ class User extends UserDecorator {
 		return $this->activation_string;
 	}
 	
+	public function isActive(){
+		$this->_checkID();
+		if(is_null($this->activation_string) || strlen($this->activation_string) == 0) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+		
 	public function isEmailUsed(){
 		if($this->email != $this->email_old){
 			if(is_null($this->dao)){
