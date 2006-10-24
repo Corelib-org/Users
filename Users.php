@@ -19,15 +19,12 @@ class UserModifiedEvent implements Event {
 	}
 }
 
-abstract class UserDecorator {
+abstract class UserDecorator implements Output  {
 	protected $decorator = null;
 	/**
 	 *	@var DAO_User
 	 */
 	protected $dao = null;
-	
-	abstract public function getXML(DOMDocument $xml);
-	// abstract public function getUID();
 	
 	public function getUID(){
 		return $this->decorator->getUID();
@@ -370,5 +367,8 @@ class User extends UserDecorator {
 		}
 		return $this->dao->delete($this->id);
 	}
+	
+	public function &getArray(){ }
+	public function getString($format = '%1$s'){}
 }
 ?>

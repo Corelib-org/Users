@@ -44,19 +44,19 @@ class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer  {
 	public function register(ObserverSubject &$subject){
 		$this->subject = $subject;
 	}
+	/**
+	 * @param EventApplyDefaultSettings $update
+	 */
 	public function update($update){
-		
-		$DOMSettings = $update->getSettings();
-		$XML = $update->getXML();
-		
 		$auth = UsersAuthorization::getInstance();
 		if($auth->isAuthed()){
-			$DOMSettings->appendChild($auth->getXML($XML));
+			$page = $update->getPage();
+			$page->addSettings($auth);
 		}
 	}
 }
 
-class UsersAuthorization extends UserDecorator implements Singleton {
+class UsersAuthorization extends UserDecorator implements Singleton,Output {
 	private static $instance = null;
 	
 	private $auth = false;
@@ -175,5 +175,13 @@ class UsersAuthorization extends UserDecorator implements Singleton {
 		}
 		return false;
 	}
+	
+	public function &getArray(){ }
+	public function getString($format = '%1$s'){}
 }
+
+$eventHandler = EventHandler::getInstance();
+$eventHandler->registerObserver(new UsersAuthorizationConfirmEvent());
+$eventHandler->registerObserver(new UsersAuthorizationStoreEvent());
+$eventHandler->registerObserver(new UsersAuthorizationPutSettingsXML());
 ?>
