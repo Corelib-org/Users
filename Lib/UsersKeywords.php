@@ -13,7 +13,7 @@ class UsersKeyword extends UserDecorator {
 	
 	const LIBRARY = 'UsersKeywords';
 	
-	public function __construct($keyword,$id){
+	public function __construct($keyword,$id=null){
 		$this->set($keyword,$id);
 	}
 	
@@ -51,20 +51,17 @@ class UsersKeywords extends UserDecorator {
 			$this->keywords[$key]->decorate($this->decorator);
 		}
 	}
-	
 	public function flush(){
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO(self::LIBRARY, self::LIBRARY);
 		}
 		$this->dao->flushKeywords($this->getUID());	
 	}
-	
 	public function commit(){
 	 	while(list(,$val) = each($this->keywords)){
 			$val->commit();
 		}
 	}
-	
 	public function getXML(DOMDocument $xml){
 		$DOMKeywords = $xml->createElement('keywords');
 		$res = $this->_getKeywords();
