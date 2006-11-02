@@ -343,7 +343,17 @@ class User extends UserDecorator {
 			return true;	
 		}
 	}
-	
+	public function getById($uid){
+		if(is_null($this->dao)){
+			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+		}			
+		$this->_setFromArray($this->dao->getUserById($uid));
+		if(is_null($this->id)){
+			return false;	
+		} else {
+			return true;
+		}
+	}
 	private function _getById(){
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
