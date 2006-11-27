@@ -121,7 +121,7 @@ class User extends UserDecorator {
 			$timestamp = time();
 		}
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}		
 		return $this->dao->updateLastTimestamp($this->id, $timestamp);
 	}
@@ -142,7 +142,7 @@ class User extends UserDecorator {
 	
 	public function commit(){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}
 		switch ($this->action){
 			case self::ACTION_CREATE:
@@ -247,7 +247,7 @@ class User extends UserDecorator {
 	public function isEmailUsed(){
 		if($this->email != $this->email_old){
 			if(is_null($this->dao)){
-				$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+				$this->dao = Database::getDAO(__CLASS__);
 			}
 			return $this->dao->ifEmailUsed($this->email, $this->id);
 		}
@@ -255,7 +255,7 @@ class User extends UserDecorator {
 	
 	public function isUsernameUsed(){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}
 		return $this->dao->ifUsernameUsed($this->username, $this->id);
 	}
@@ -319,7 +319,7 @@ class User extends UserDecorator {
 	
 	public function getByUsername($username){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}	
 		$this->_setFromArray($this->dao->getUserByName($username));
 		if(is_null($this->id)){
@@ -331,7 +331,7 @@ class User extends UserDecorator {
 	
 	public function getByEmail($email){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}			
 		$this->_setFromArray($this->dao->getUserByEmail($email));
 		if(is_null($this->id)){
@@ -343,7 +343,7 @@ class User extends UserDecorator {
 	
 	private function _getById(){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}			
 		$this->_setFromArray($this->dao->getUserById($this->id));
 		if(is_null($this->id)){
@@ -355,7 +355,7 @@ class User extends UserDecorator {
 	
 	public function validate($string){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}
 		$this->activation_string = null;
 		return $this->dao->validate($string);
@@ -363,7 +363,7 @@ class User extends UserDecorator {
 	
 	public function delete(){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(self::LIBRARY, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}
 		return $this->dao->delete($this->id);
 	}

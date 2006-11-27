@@ -114,7 +114,7 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 	}
 	public function reloadPermissions(){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(null, __CLASS__);
+			$this->dao = Database::getDAO(__CLASS__);
 		}
 		$this->permissions = array('LOGGED_IN');
 		$res = $this->dao->getUserGroupsPermissions($this->decorator->getUID());
