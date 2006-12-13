@@ -91,15 +91,6 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 	public function __wakeup(){
 		$this->confirm();
 	}
-	public function getXML(DOMDocument $xml){
-		$DOMUser = $this->decorator->getXML($xml);
-		$DOMPermissions = $DOMUser->appendChild($xml->createElement('permissions'));
-		while(list($key, $val) = each($this->permissions)){
-			$DOMPermission = $DOMPermissions->appendChild($xml->createElement('permission', $val));
-			$DOMPermission->setAttribute('id', $key);
-		}
-		return $DOMUser;
-	}
 	public function confirm(){
 		if($_SERVER['REMOTE_ADDR'] != $this->ip){
 			$this->logout();	
@@ -175,8 +166,24 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 		}
 		return false;
 	}
-	
-	public function &getArray(){ }
+
+	public function getXML(DOMDocument $xml){
+		$DOMUser = $this->decorator->getXML($xml);
+		$DOMPermissions = $DOMUser->appendChild($xml->createElement('permissions'));
+		while(list($key, $val) = each($this->permissions)){
+			$DOMPermission = $DOMPermissions->appendChild($xml->createElement('permission', $val));
+			$DOMPermission->setAttribute('id', $key);
+		}
+		return $DOMUser;
+	}
+	public function &getArray(){
+		$user = $this->decorator->getArray();
+		$user['user']['permissions'] = array();
+		while(list($key, $val) = each($this->permissions)){
+			$user['user']['permissions'][$key] = $val;
+		}
+		return $user;		
+	}
 	public function getString($format = '%1$s'){}
 }
 

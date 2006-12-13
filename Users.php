@@ -260,24 +260,6 @@ class User extends UserDecorator {
 		return $this->dao->ifUsernameUsed($this->username, $this->id);
 	}
 	
-	public function getXML(DOMDocument $xml){
-		$user = $xml->createElement('user');
-		$user->setAttribute('id', $this->getUID());
-		if(!is_null($this->getUsername())){
-			$user->setAttribute('username', $this->getUsername());
-		}
-		if(!is_null($this->getEmail())){
-			$user->setAttribute('email', $this->getEmail());
-		}
-		if(!is_null($this->getLastLogin())){
-			$user->setAttribute('lastlogin', $this->getLastLogin());
-		}
-		if(!is_null($this->getCreateDate())){
-			$user->setAttribute('created', $this->getCreateDate());
-		}
-		return $user;
-	}
-	
 	public function decorate(UserDecorator $decorator){
 		try {
 			throw new BaseException('User Object can\'t be decorated');
@@ -368,7 +350,41 @@ class User extends UserDecorator {
 		return $this->dao->delete($this->id);
 	}
 	
-	public function &getArray(){ }
+	public function getXML(DOMDocument $xml){
+		$user = $xml->createElement('user');
+		$user->setAttribute('id', $this->getUID());
+		if(!is_null($this->getUsername())){
+			$user->setAttribute('username', $this->getUsername());
+		}
+		if(!is_null($this->getEmail())){
+			$user->setAttribute('email', $this->getEmail());
+		}
+		if(!is_null($this->getLastLogin())){
+			$user->setAttribute('lastlogin', $this->getLastLogin());
+		}
+		if(!is_null($this->getCreateDate())){
+			$user->setAttribute('created', $this->getCreateDate());
+		}
+		return $user;
+	}	
+	public function &getArray(){ 
+		$user = array();
+		$user['id'] = $this->getUID();
+		if(!is_null($this->getUsername())){
+			$user['username'] = $this->getUsername();
+		}
+		if(!is_null($this->getEmail())){
+			$user['email'] = $this->getEmail();
+		}
+		if(!is_null($this->getLastLogin())){
+			$user['lastlogin'] = $this->getLastLogin();
+		}
+		if(!is_null($this->getCreateDate())){
+			$user['created'] = $this->getCreateDate();
+		}
+		$user = array('user'=>$user);
+		return $user;		
+	}
 	public function getString($format = '%1$s'){}
 }
 ?>
