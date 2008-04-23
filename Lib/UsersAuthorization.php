@@ -12,7 +12,7 @@ class UsersAuthorizationConfirmEvent implements EventTypeHandler,Observer  {
 	public function getEventType(){
 		return 'EventRequestStart';	
 	}	
-	public function register(ObserverSubject &$subject){
+	public function register(ObserverSubject $subject){
 		$this->subject = $subject;
 	}
 	public function update($update){
@@ -26,7 +26,7 @@ class UsersAuthorizationStoreEvent implements EventTypeHandler,Observer  {
 	public function getEventType(){
 		return 'EventRequestEnd';	
 	}	
-	public function register(ObserverSubject &$subject){
+	public function register(ObserverSubject $subject){
 		$this->subject = $subject;
 	}
 	public function update($update){
@@ -41,7 +41,7 @@ class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer  {
 	public function getEventType(){
 		return 'EventApplyDefaultSettings';	
 	}	
-	public function register(ObserverSubject &$subject){
+	public function register(ObserverSubject $subject){
 		$this->subject = $subject;
 	}
 	/**
@@ -56,12 +56,18 @@ class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer  {
 	}
 }
 
-class UsersAuthorization extends UserDecorator implements Singleton,Output {
+
+
+class UsersAuthorization implements Singleton,Output {
 	private static $instance = null;
 	
 	private $auth = false;
 	private $ip = null;
 	private $permissions = array();
+	/**
+	 * @var User
+	 */
+	private $user = null; 
 	
 	/**
 	 * @var DAO_UserAuthorization
@@ -85,16 +91,14 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 	private function __construct(){
 		$this->confirm();
 	}
-	public function __sleep(){
-		return array('decorator','auth','ip','permissions');	
-	}
+
 	public function __wakeup(){
 		$this->confirm();
 	}
 	public function confirm(){
-		if($_SERVER['REMOTE_ADDR'] != $this->ip){
+/*		if($_SERVER['REMOTE_ADDR'] != $this->ip){
 			$this->logout();	
-		}
+	 	} */
 	}
 	public function getUID(){
 		return $this->decorator->getUID();	
@@ -108,19 +112,19 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 			$this->dao = Database::getDAO(__CLASS__);
 		}
 		$this->permissions = array('LOGGED_IN');
-		$res = $this->dao->getUserGroupsPermissions($this->decorator->getUID());
+		$res = $this->dao->getUserGroupsPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
 		}
-		$res = $this->dao->getUserPermissions($this->decorator->getUID());
+		$res = $this->dao->getUserPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
 		}
-/*		$res = $this->dao->getUserRolesPermissions($this->decorator->getUID());
+ 		$res = $this->dao->getUserRolesPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
-		} */
-		$res = $this->dao->getUserReversePermissions($this->decorator->getUID());
+		}
+		$res = $this->dao->getUserReversePermissions($this->user->getID());
 		while($out = $res->fetchArray()){
 			if(isset($this->permissions[$out['pk_users_permissions']])){
 				unset($this->permissions[$out['pk_users_permissions']]);
@@ -130,17 +134,19 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 	public function isAuthed(){
 		return $this->auth;
 	}
-	public function login($password, $hash=false){
-		$act = $this->decorator->getActivationString();
+	public function login(User $user, $password, $hash=false){
+		$this->user = $user;
 		if(!$hash){
 			$password = sha1($password);
 		}
-		if($password == $this->decorator->getPassword() && empty($act)){
+		
+		if($password == $this->user->getPassword()){
 			$this->auth = true;
 			$this->ip = $_SERVER['REMOTE_ADDR'];
 			$this->reloadPermissions();
 			$this->store();
-			$this->decorator->updateLastTimestamp();
+			$this->user->setLastTimestamp();
+			$this->user->commit();
 			return true;
 		} else {
 			return false;	
@@ -168,7 +174,7 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 	}
 
 	public function getXML(DOMDocument $xml){
-		$DOMUser = $this->decorator->getXML($xml);
+		$DOMUser = $this->user->getXML($xml);
 		$DOMPermissions = $DOMUser->appendChild($xml->createElement('permissions'));
 		while(list($key, $val) = each($this->permissions)){
 			$DOMPermission = $DOMPermissions->appendChild($xml->createElement('permission', $val));
@@ -184,7 +190,6 @@ class UsersAuthorization extends UserDecorator implements Singleton,Output {
 		}
 		return $user;		
 	}
-	public function getString($format = '%1$s'){}
 }
 
 $eventHandler = EventHandler::getInstance();

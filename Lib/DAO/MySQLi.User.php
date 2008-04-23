@@ -2,6 +2,15 @@
 class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	private static $instance = null;
 	
+	private $select_columns = 'pk_users, 
+	                           username, 
+	                           password, 
+	                           email, 
+	                           IF(activated=\'TRUE\', true, false) as activated, 
+	                           activation_string, 
+	                           UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, 
+	                           UNIX_TIMESTAMP(last_timestamp) AS last_timestamp'; 
+	
 	/**
 	 *	@return Database
 	 */
@@ -11,9 +20,8 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		}
 		return self::$instance;	
 	}
-	
-	
-	public function ifEmailUsed($email, $id=null){
+
+	public function isEmailAvailable($id, $email){
 		$query = 'SELECT pk_users 
 		          FROM tbl_users
 		          WHERE email LIKE \''.$email.'\' ';
@@ -22,13 +30,12 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		}
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		if($query->getNumRows() > 0){
-			return true;	
-		} else {
 			return false;	
+		} else {
+			return true;	
 		}
 	}
-	
-	public function ifUsernameUsed($username, $id=null){
+	public function isUsernameAvailable($id, $username){
 		$query = 'SELECT pk_users 
 		          FROM tbl_users
 		          WHERE username LIKE \''.$username.'\' ';
@@ -37,97 +44,92 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		}
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		if($query->getNumRows() > 0){
-			return true;	
-		} else {
 			return false;	
+		} else {
+			return true;	
 		}
-	}
+	}	
 	
-	public function create($username, $password, $email, $created, $activation_string=null){
-		if($this->ifUsernameUsed($username) || $this->ifEmailUsed($email)){
+	public function getByUsername($username, $checkvalid=true){
+		$query = 'SELECT '.$this->select_columns.'
+		          FROM tbl_users
+		          WHERE username LIKE \''.$username.'\'';
+		if($checkvalid){
+			$query .= ' AND activated=\'TRUE\' ';
+		}
+		$query = $this->slaveQuery(new MySQLiQuery($query));
+		return $query->fetchArray();
+	}	
+	public function getByEmail($email, $checkvalid=true){
+		$query = 'SELECT '.$this->select_columns.'
+		          FROM tbl_users
+		          WHERE email LIKE \''.$email.'\'';
+		if($checkvalid){
+			$query .= ' AND activated=\'TRUE\' ';
+		}
+		$query = $this->slaveQuery(new MySQLiQuery($query));
+		return $query->fetchArray();
+	}	
+	public function create($username, $email, $password, $activation_string){
+		$this->startTransaction();
+		if(!$this->isUsernameAvailable(null, $username) || !$this->isEmailAvailable(null, $email)){
+			$this->rollback();
 			return false;
 		} else {
-			if(is_null($activation_string)){
-				$activation_string = 'NULL';	
-			} else {
-				$activation_string = '\''.$activation_string.'\'';	
-			}
-			$query = 'INSERT INTO tbl_users(username, password, email, create_timestamp, activation_string)
-			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', FROM_UNIXTIME(\''.$created.'\'), '.$activation_string.')';
+			$activation_string = $this->_parseNullValue($activation_string);
+			$query = 'INSERT INTO tbl_users(username, password, email, activation_string)
+			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', '.$activation_string.')';
 			$query = $this->masterQuery(new MySQLiQuery($query));
-			return (int) $query->getInsertID();
+			if($id = (int) $query->getInsertID()){
+				$this->commit();
+				return $id;
+			} else {
+				$this->rollback();	
+				return false;	 
+			}
 		}
 	}
-	
-	public function getUserByName($username){
-		$query = 'SELECT pk_users, username, password, email, activation_string, UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, UNIX_TIMESTAMP(last_timestamp) AS last_timestamp
-		          FROM tbl_users
-		          WHERE username LIKE \''.$username.'\'
-				  AND activation_string IS NULL';
-		$query = $this->slaveQuery(new MySQLiQuery($query));
-		return $query->fetchArray();
+	public function update($id, $username, $email, $password, $activated, $last_timestamp){
+		$this->startTransaction();
+		if(!$this->isUsernameAvailable($id, $username) || !$this->isEmailAvailable($id, $email)){
+			$this->rollback();
+			return false;
+		} else {
+			$activated = $this->_parseBooleanValue($activated);
+			$query = 'UPDATE tbl_users
+			          SET username=\''.$username.'\',
+			              email=\''.$email.'\',
+			              password=\''.$password.'\',
+			              activated='.$activated.',
+			              last_timestamp=FROM_UNIXTIME(\''.$last_timestamp.'\')
+			          WHERE pk_users=\''.$id.'\'';
+			$query = $this->masterQuery(new MySQLiQuery($query));
+			if($query->getAffectedRows() > 0){
+				$this->commit();
+				return true;
+			} else {
+				$this->rollback();	
+				return false;	 
+			}
+		}
 	}
-	public function getUserByEmail($email){
-		$query = 'SELECT pk_users, username, password, email, activation_string, UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, UNIX_TIMESTAMP(last_timestamp) AS last_timestamp
-		          FROM tbl_users
-		          WHERE email=\''.$email.'\'';
-		$query = $this->slaveQuery(new MySQLiQuery($query));
-		return $query->fetchArray();
-	}
-	public function getUserById($id){
-		$query = 'SELECT pk_users, username, password, email, activation_string, UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, UNIX_TIMESTAMP(last_timestamp) AS last_timestamp
+	public function read($id){
+		$query = 'SELECT '.$this->select_columns.'
 		          FROM tbl_users
 		          WHERE pk_users=\''.$id.'\'';
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		return $query->fetchArray();
-	}
-	
-	public function validate($string){
-		$query = 'UPDATE tbl_users SET activation_string = NULL
-		          WHERE activation_string=\''.$string.'\'';
+	}	
+	public function delete($id){
+		$query = 'UPDATE tbl_users
+		          SET activated=\'FALSE\',
+		              activation_string=\'DELETED\'
+		          WHERE pk_users=\''.$id.'\'';
 		$query = $this->masterQuery(new MySQLiQuery($query));
 		if($query->getAffectedRows() > 0){
 			return true;
 		} else {
-			return false;
-		}
-	}
-	
-	public function update($id, $username, $password, $email){
-		$query = 'UPDATE tbl_users
-		          SET username=\''.$username.'\',
-		              password=\''.$password.'\',
-		              email=\''.$email.'\'
-		          WHERE pk_users=\''.$id.'\'';
-		$query = $this->masterQuery(new MySQLiQuery($query));
-		if($query->getAffectedRows() > 0){
-			return true;
-		} else {        
-			return false;
-			
-		}
-	}
-	
-	public function updateLastTimestamp($id, $timestamp){
-		$query = 'UPDATE tbl_users 
-		          SET last_timestamp = FROM_UNIXTIME(\''.$timestamp.'\')
-		          WHERE pk_users=\''.$id.'\'';
-		$query = $this->masterQuery(new MySQLiQuery($query));
-		if($query->getAffectedRows() > 0){
-			return true;
-		} else {        
-			return false;
-		}
-	}
-	
-	public function delete($id){
-		$query = "UPDATE tbl_users SET activation_string = 'deleted' WHERE pk_users = ".$id;
-
-		$query = $this->masterQuery(new MySQLiQuery($query));
-		if($query->getAffectedRows() > 0){
-			return true;
-		} else {        
-			return false;
+			return false;	 
 		}
 	}
 }

@@ -1,8 +1,11 @@
 <?php
-class UserModifiedEvent implements Event {
-	private $user;
+abstract class UserModifyEvent implements Event {
+	/**
+	 * @var User
+	 */
+	protected $user;
 	
-	function __construct(UserDecorator $user){		
+	function __construct(UserComponent $user){		
 		$this->user = $user;
 	}
 	
@@ -10,366 +13,245 @@ class UserModifiedEvent implements Event {
 		return $this->user->getXML($xml);
 	}
 	
-	public function getUID(){
-		return $this->user->getUID();
+	public function getID(){
+		return $this->user->getID();
 	}
 	
-	public function getUserObj(){
+	public function getObj(){
 		return $this->user;
 	}
 }
+class UserModifyBeforeCommit extends UserModifyEvent {
+	
+}
+class UserModifyBeforeDelete extends UserModifyEvent {
+	
+}
+class UserModifyAfterCommit extends UserModifyEvent {
+	
+}
+class UserModifyAfterDelete extends UserModifyEvent {
+	
+}
 
-abstract class UserDecorator implements Output  {
-	protected $decorator = null;
+abstract class UserComponent implements Output  {
 	/**
-	 *	@var DAO_User
+	 * Child UserComponents
+	 * 
+	 * @var Array instantiated components
 	 */
-	protected $dao = null;
-	
-	public function getUID(){
-		return $this->decorator->getUID();
+	protected $components = array();
+	/**
+	 * Parent UserComponent
+	 * 
+	 * @var UserComponent parent component
+	 */
+	protected $parent = null;
+		
+	public function getID(){
+		return $this->parent->getID();
 	}
-	
-	public function getDecorator(){
-		return $this->decorator;
+	public function getPassword(){
+		return $this->parent->getPassword();
 	}
-	
-	public function getUsername(){
-		return $this->decorator->getUsername();
-	}
-	
-	protected function buildXML(DOMDocument $xml, DOMElement $DOMNode){
-		if(!is_null($this->decorator)){
-			$DOMElement = $this->decorator->getXML($xml);
-			$DOMElement->appendChild($DOMNode);
-			return $DOMElement;
-		} else {
-			return $DOMNode;
+		
+	public function getComponentsXML(DOMDocument $xml, DOMElement $DOMnode){
+		while(list(,$val) = each($this->components)){
+			$DOMnode->appendChild($val->getXML($xml));
 		}
+		reset($this->components);
 	}
 	
-	public function decorate(UserDecorator $decorator){
-		$this->decorator = $decorator;
-	}
-	
-	public function __sleep(){
-		return array('decorator');
+	public function addComponent(UserComponent $component){
+		$this->components[] = $component;
 	}
 }
 
 interface DAO_User {
 	/**
-	 *	Create User
-	 *
-	 *	@param string $username
-	 *	@param string $password
-	 *	@param string $email
-	 *	@param integer $created Unix timestamp for the time the user is created
-	 *	@param string $activation_string Unique activation string for the user
+	 * @return on success, return new user id, else return false
 	 */
-	public function create($username, $password, $email, $created, $activation_string=null);
-	public function ifEmailUsed($email, $id=null);
-	public function ifUsernameUsed($username, $id=null);
-	public function getUserByName($username);
-	public function getUserByEmail($email);
-	public function getUserById($id);
-	public function validate($string);
-	public function update($id, $username, $password, $email);
-	public function updateLastTimestamp($id, $timestamp);
+	public function create($username, $email, $password, $activation_string);
+	public function update($id, $username, $email, $password, $activated, $last_timestamp);
+	/**
+	 * Read userdata into user object
+	 * 
+	 * @return array on success, else return false
+	 */
+	public function read($id);
+	public function delete($id);
+	public function isUsernameAvailable($id, $username);
+	public function isEmailAvailable($id, $email);
+	public function getByUsername($username, $checkvalid=true);
+	public function getByEmail($email, $checkvalid=true);	
 }
 
-class User extends UserDecorator {
-	private $action = null;
-	
+
+class User extends UserComponent {
+	/**
+	 * @var integer user id
+	 */
 	private $id = null;
 	private $username = null;
 	private $email = null;
-	private $email_old = null;
-	private $password = null;
-	private $lastlogin = null;
-	private $created = null;
-	private $activation_string = null;
+	private $password = null;	
 	
-	const ACTION_CREATE = 1;
-	const ACTION_UPDATE = 2;
+	private $activated = false;
+	private $activation_string = null;	
 	
-	const LIBRARY = 'Users';
+	private $last_timestamp = null;
+	private $create_timestamp = null;
 	
-	public function __sleep(){
-		return array('decorator',
-		             'id',
-		             'action',
-		             'username',
-		             'email',
-		             'password',
-		             'lastlogin',
-		             'created',
-		             'activation_string');
-	}
+	/**
+	 * @var DAO_User
+	 */
+	private $dao = null;
 	
 	public function __construct($id = null, $array=array()){
 		$this->id = $id;
-		if(!is_null($this->id) && sizeof($array) == 0){
-			$this->_getById($this->id);
-		} else if(!is_null($this->id)){
+		if(sizeof($array) > 0){
 			$this->_setFromArray($array);
 		}
-	}
+	}	
 	
-	public function updateLastTimestamp($timestamp=null){
-		if(is_null($timestamp)){
-			$timestamp = time();
-		}
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}		
-		return $this->dao->updateLastTimestamp($this->id, $timestamp);
-	}
-	
-	
-	public function create(){
-		try {
-			if(!is_null($this->id)){
-				throw new BaseException('User ID is allready loaded, unable to create user');	
-			} else {
-				$this->action = self::ACTION_CREATE;
-				return $this->commit();
-			}
-		} catch (BaseException $e) {
-			echo $e;
+	public function getByUsername($username, $checkvalid=true){
+		$this->_getDAO(false);
+		$this->_setFromArray($this->dao->getByUsername($username, $checkvalid));
+		if(is_null($this->id)){
+			return false;	
+		} else {
+			return true;	
 		}
 	}
-	
-	public function commit(){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
+	public function getByEmail($email, $checkvalid=true){
+		$this->_getDAO(false);
+		$this->_setFromArray($this->dao->getByEmail($email, $checkvalid));
+		if(is_null($this->id)){
+			return false;	
+		} else {
+			return true;	
 		}
-		switch ($this->action){
-			case self::ACTION_CREATE:
-				$this->created = time();
-				return $this->_create();
-				break;	
-			case self::ACTION_UPDATE:
-				return $this->_update();
-				break;	
-		}
-	}
+	}	
 	
-	private function _create(){
-		$this->activation_string = sha1(time().serialize($this));
-		$id = $this->dao->create($this->username, $this->password, $this->email, $this->created, $this->activation_string);
-		if($id !== false){
-			$this->id = $id;
-		}
-		return $id;
-	}
-	
-	private function _update(){
-		$this->dao->update($this->id, $this->username, $this->password, $this->email);
-	}
-	
-	final private function _checkID(){
-		try {
-			if(is_null($this->id)){
-				throw new BaseException('User ID not loaded, unable to get user informations');
-			}
-		} catch (BaseException $e){
-			echo $e;
+	public function getID(){
+		if(!is_null($this->id)){
+			return $this->id;
+		} else {
+			return false;
 		}
 	}
-	
-	private function _setUpdate(){
-		$this->action = self::ACTION_UPDATE;
-	}
-	
-	public function setUsername($username){
-		$this->_setUpdate();
-		$this->username = $username;
-	}
-	
-	public function setEmail($email){
-		$this->_setUpdate();
-		if(!is_null($this->email)){
-			$this->email_old = $this->email;
-		}
-		$this->email = $email;
-	}
-	
-	public function setPassword($password){
-		$this->_setUpdate();
-		$this->password = sha1($password);
-	}
-	
-	public function setLastLogin($timestamp){
-		$this->_setUpdate();
-		$this->lastlogin = $timestamp;
-	}
-	
-	public function getUsername(){
-		$this->_checkID();
-		return $this->username;
-	}
-	
-	public function getEmail(){
-		$this->_checkID();
-		return $this->email;
-	}
-	
-	public function getLastLogin(){
-		$this->_checkID();
-		return $this->lastlogin;
-	}
-
-	public function getCreateDate(){
-		$this->_checkID();
-		return $this->created;
-	}
-	
 	public function getPassword(){
-		$this->_checkID();
-		return $this->password;
+		if(!is_null($this->password)){
+			return $this->password;
+		} else {
+			return false;
+		}
 	}
-	
-	public function getActivationString(){
-		$this->_checkID();
-		return $this->activation_string;
+	public function getUsername(){
+		if(!is_null($this->username)){
+			return $this->username;
+		} else {
+			return false;
+		}
 	}
-	
-	public function isActive(){
-		$this->_checkID();
-		if(is_null($this->activation_string) || strlen($this->activation_string) == 0) {
-			return true;
+	public function getEmail(){
+		if(!is_null($this->email)){
+			return $this->email;
+		} else {
+			return false;
+		}
+	}
+	public function getLastTimestamp(){
+		if(!is_null($this->last_timestamp)){
+			return $this->last_timestamp;
+		} else {
+			return false;
+		}
+	}
+	public function getCreateDate(){
+		if(!is_null($this->create_timestamp)){
+			return $this->create_timestamp;
 		} else {
 			return false;
 		}
 	}
 		
-	public function isEmailUsed(){
-		if($this->email != $this->email_old){
-			if(is_null($this->dao)){
-				$this->dao = Database::getDAO(__CLASS__);
-			}
-			return $this->dao->ifEmailUsed($this->email, $this->id);
+	public function setUsername($username){
+		$this->_getDAO();
+		if($this->dao->isUsernameAvailable($this->id, $username)){
+			$this->username = $username;
+			return true;
+		} else {
+			return false;
+		}
+	}
+	public function setEmail($email){
+		$this->_getDAO();
+		if($this->dao->isEmailAvailable($this->id, $email)){
+			$this->email = $email;
+			return true;
+		} else {
+			return false;
+		}
+	}	
+	public function setPassword($password){
+		$this->password = sha1($password);
+	}
+	public function setLastTimestamp($timestamp=null){
+		if(is_null($timestamp)){
+			$this->last_timestamp = time();	
+		} else {
+			$this->last_timestamp = $timestamp;
 		}
 	}
 	
-	public function isUsernameUsed(){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}
-		return $this->dao->ifUsernameUsed($this->username, $this->id);
-	}
-	
-	public function decorate(UserDecorator $decorator){
+	public function commit(){
+		$event = EventHandler::getInstance();
+		$this->_getDAO();
 		try {
-			throw new BaseException('User Object can\'t be decorated');
+			if(is_null($this->username) || is_null($this->email)){
+				throw new BaseException('unable to modify user, username or email is null', E_USER_ERROR);		
+			} else {
+				$event->triggerEvent(new UserModifyBeforeCommit($this));
+				if(is_null($this->id)){
+					$r = $this->_create();
+				} else {
+					$r = $this->_update();
+				}
+				$event->triggerEvent(new UserModifyAfterCommit($this));
+				return $r;
+			}
 		} catch (BaseException $e){
-			echo $e;	
+			echo $e;
+			exit;
 		}
+		return false;
 	}
-	
-	public function getUID(){
-		return $this->id;
-	}
-	
-	private function _setFromArray($array){
-		if(!is_null($array['pk_users'])){
-			$this->id = (int) $array['pk_users'];
-		} else {
-			$this->id = $array['pk_users'];
-		}
-		if(isset($array['email'])){
-			$this->email = $array['email'];
-		}
-		if(isset($array['username'])){
-			$this->username = $array['username'];
-		}
-		if(isset($array['password'])){
-			$this->password = $array['password'];
-		}
-		if(isset($array['last_timestamp'])){
-			$this->lastlogin = $array['last_timestamp'];
-		}
-		if(isset($array['activation_string'])){
-			$this->activation_string = $array['activation_string'];
-		}
-		if(isset($array['create_timestamp'])){
-			$this->created = $array['create_timestamp'];
-		}
-		
-	}
-	
-	public function getByUsername($username){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}	
-		$this->_setFromArray($this->dao->getUserByName($username));
-		if(is_null($this->id)){
-			return false;	
-		} else {
-			return true;	
-		}
-	}
-	
-	public function getByEmail($email){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}			
-		$this->_setFromArray($this->dao->getUserByEmail($email));
-		if(is_null($this->id)){
-			return false;	
-		} else {
-			return true;	
-		}
-	}
-	
-	private function _getById(){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}			
-		$this->_setFromArray($this->dao->getUserById($this->id));
-		if(is_null($this->id)){
-			return false;	
-		} else {
-			return true;	
-		}
-	}
-	
-	public function validate($string){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}
-		$this->activation_string = null;
-		return $this->dao->validate($string);
-	}
-	
-	public function delete(){
-		if(is_null($this->dao)){
-			$this->dao = Database::getDAO(__CLASS__);
-		}
+	public function delete($permanent=false){
+		// TODO make permanent deletion method
 		return $this->dao->delete($this->id);
 	}
 	
 	public function getXML(DOMDocument $xml){
 		$user = $xml->createElement('user');
-		$user->setAttribute('id', $this->getUID());
+		$user->setAttribute('id', $this->getID());
 		if(!is_null($this->getUsername())){
 			$user->setAttribute('username', $this->getUsername());
 		}
 		if(!is_null($this->getEmail())){
 			$user->setAttribute('email', $this->getEmail());
 		}
-		if(!is_null($this->getLastLogin())){
-			$user->setAttribute('lastlogin', $this->getLastLogin());
+		if(!is_null($this->getLastTimestamp())){
+			$user->setAttribute('lastlogin', $this->getLastTimestamp());
 		}
 		if(!is_null($this->getCreateDate())){
-			$user->setAttribute('created', $this->getCreateDate());
+			$user->setAttribute('create_timestamp', $this->getCreateDate());
 		}
 		return $user;
 	}	
 	public function &getArray(){ 
 		$user = array();
-		$user['id'] = $this->getUID();
+		$user['id'] = $this->getID();
 		if(!is_null($this->getUsername())){
 			$user['username'] = $this->getUsername();
 		}
@@ -382,9 +264,65 @@ class User extends UserDecorator {
 		if(!is_null($this->getCreateDate())){
 			$user['created'] = $this->getCreateDate();
 		}
-		$user = array('user'=>$user);
+		$user = array('user'=>&$user);
 		return $user;		
+	}	
+	
+	private function _setFromArray($array){
+		if(!is_null($array['pk_users'])){
+			$this->id = (int) $array['pk_users'];
+		}
+		if(isset($array['email'])){
+			$this->email = $array['email'];
+		}
+		if(isset($array['username'])){
+			$this->username = $array['username'];
+		}
+		if(isset($array['password'])){
+			$this->password = $array['password'];
+		}
+		if(isset($array['last_timestamp'])){
+			$this->last_timestamp = $array['last_timestamp'];
+		}
+		if(isset($array['activation_string'])){
+			$this->activation_string = $array['activation_string'];
+		}
+		if(isset($array['activated'])){
+			$this->activated = (bool) $array['activated'];
+		}
+		if(isset($array['create_timestamp'])){
+			$this->create_timestamp = $array['create_timestamp'];
+		}
 	}
-	public function getString($format = '%1$s'){}
+	private function _getDAO($read=true){
+		if(is_null($this->dao)){
+			$this->dao = Database::getDAO('User');
+			if($read){
+				$this->_read();
+			}
+		}
+		return true;
+	}
+	private function _read(){
+		$this->_getDAO(false);
+		if($array = $this->dao->read($this->id)){
+			$this->_setFromArray($array);
+		}
+	}
+	private function _create(){
+		if($this->id = $this->dao->create($this->username, $this->email, $this->password, md5($this->username.$this->email))){
+			$this->_read();
+			return true;
+		} else {
+			return false;
+		}		
+	}
+	private function _update(){
+		if($this->dao->update($this->id, $this->username, $this->email, $this->password, $this->activated, $this->last_timestamp)){
+			return true;
+		} else {
+			return false;
+		}
+	}
 }
 ?>
