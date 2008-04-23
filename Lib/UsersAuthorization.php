@@ -153,9 +153,10 @@ class UsersAuthorization implements Singleton,Output {
 		}
 	}
 	public function logout(){
-		$this->decorator = null;
+		$this->user = null;
 		$this->ip = null;
 		$this->auth = false;
+		$this->permissions = array();
 		$session = SessionHandler::getInstance();
 		$session->remove(__CLASS__);
 	}
