@@ -107,6 +107,15 @@ class User extends UserComponent {
 	 */
 	private $dao = null;
 	
+	const FIELD_ID = 'pk_users';
+	const FIELD_USERNAME = 'username';	
+	const FIELD_PASSWORD = 'password';
+	const FIELD_EMAIL = 'email';
+	const FIELD_ACTIVATION_STRING = 'activation_string';
+	const FIELD_ACTIVATED = 'activated';
+	const FIELD_CREATE_TIMESTAMP = 'create_timestamp';
+	const FIELD_LAST_TIMESTAMP = 'last_timestamp';
+	
 	public function __construct($id = null, $array=array()){
 		$this->id = $id;
 		if(sizeof($array) > 0){
@@ -205,6 +214,10 @@ class User extends UserComponent {
 		}
 	}
 	
+	public function isActive(){
+		return $this->activated;
+	}
+	
 	public function commit(){
 		$event = EventHandler::getInstance();
 		$this->_getDAO();
@@ -231,6 +244,10 @@ class User extends UserComponent {
 		// TODO make permanent deletion method
 		return $this->dao->delete($this->id);
 	}
+	public function read(){
+		return $this->_read();
+	}
+	
 	
 	public function getXML(DOMDocument $xml){
 		$user = $xml->createElement('user');
@@ -241,8 +258,13 @@ class User extends UserComponent {
 		if(!is_null($this->getEmail())){
 			$user->setAttribute('email', $this->getEmail());
 		}
+		if(!$this->isActive()){
+			$user->setAttribute('active', 'false');
+		} else {
+			$user->setAttribute('active', 'true');
+		}
 		if(!is_null($this->getLastTimestamp())){
-			$user->setAttribute('lastlogin', $this->getLastTimestamp());
+			$user->setAttribute('last_timestamp', $this->getLastTimestamp());
 		}
 		if(!is_null($this->getCreateDate())){
 			$user->setAttribute('create_timestamp', $this->getCreateDate());
@@ -262,36 +284,37 @@ class User extends UserComponent {
 			$user['lastlogin'] = $this->getLastLogin();
 		}
 		if(!is_null($this->getCreateDate())){
-			$user['created'] = $this->getCreateDate();
+			$user['create_timestamp'] = $this->getCreateDate();
 		}
 		$user = array('user'=>&$user);
 		return $user;		
 	}	
 	
+	
 	private function _setFromArray($array){
-		if(!is_null($array['pk_users'])){
-			$this->id = (int) $array['pk_users'];
+		if(!is_null($array[self::FIELD_ID])){
+			$this->id = (int) $array[self::FIELD_ID];
 		}
-		if(isset($array['email'])){
-			$this->email = $array['email'];
+		if(isset($array[self::FIELD_EMAIL])){
+			$this->email = $array[self::FIELD_EMAIL];
 		}
-		if(isset($array['username'])){
-			$this->username = $array['username'];
+		if(isset($array[self::FIELD_USERNAME])){
+			$this->username = $array[self::FIELD_USERNAME];
 		}
-		if(isset($array['password'])){
-			$this->password = $array['password'];
+		if(isset($array[self::FIELD_PASSWORD])){
+			$this->password = $array[self::FIELD_PASSWORD];
 		}
-		if(isset($array['last_timestamp'])){
-			$this->last_timestamp = $array['last_timestamp'];
+		if(isset($array[self::FIELD_LAST_TIMESTAMP])){
+			$this->last_timestamp = $array[self::FIELD_LAST_TIMESTAMP];
 		}
-		if(isset($array['activation_string'])){
-			$this->activation_string = $array['activation_string'];
+		if(isset($array[self::FIELD_ACTIVATION_STRING])){
+			$this->activation_string = $array[self::FIELD_ACTIVATION_STRING];
 		}
-		if(isset($array['activated'])){
-			$this->activated = (bool) $array['activated'];
+		if(isset($array[self::FIELD_ACTIVATED])){
+			$this->activated = (bool) $array[self::FIELD_ACTIVATED];
 		}
-		if(isset($array['create_timestamp'])){
-			$this->create_timestamp = $array['create_timestamp'];
+		if(isset($array[self::FIELD_CREATE_TIMESTAMP])){
+			$this->create_timestamp = $array[self::FIELD_CREATE_TIMESTAMP];
 		}
 	}
 	private function _getDAO($read=true){
@@ -307,6 +330,9 @@ class User extends UserComponent {
 		$this->_getDAO(false);
 		if($array = $this->dao->read($this->id)){
 			$this->_setFromArray($array);
+			return true;
+		} else {
+			return false;
 		}
 	}
 	private function _create(){

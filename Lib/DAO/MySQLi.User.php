@@ -2,14 +2,14 @@
 class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	private static $instance = null;
 	
-	private $select_columns = 'pk_users, 
-	                           username, 
-	                           password, 
-	                           email, 
-	                           IF(activated=\'TRUE\', true, false) as activated, 
-	                           activation_string, 
-	                           UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, 
-	                           UNIX_TIMESTAMP(last_timestamp) AS last_timestamp'; 
+	const SELECT_COLUMNS = 'pk_users, 
+	                        username, 
+	                        password, 
+	                        email, 
+	                        IF(activated=\'TRUE\', true, false) as activated, 
+	                        activation_string, 
+	                        UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, 
+	                        UNIX_TIMESTAMP(last_timestamp) AS last_timestamp'; 
 	
 	/**
 	 *	@return Database
@@ -51,7 +51,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	}	
 	
 	public function getByUsername($username, $checkvalid=true){
-		$query = 'SELECT '.$this->select_columns.'
+		$query = 'SELECT '.self::SELECT_COLUMNS.'
 		          FROM tbl_users
 		          WHERE username LIKE \''.$username.'\'';
 		if($checkvalid){
@@ -61,7 +61,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		return $query->fetchArray();
 	}	
 	public function getByEmail($email, $checkvalid=true){
-		$query = 'SELECT '.$this->select_columns.'
+		$query = 'SELECT '.self::SELECT_COLUMNS.'
 		          FROM tbl_users
 		          WHERE email LIKE \''.$email.'\'';
 		if($checkvalid){
@@ -114,7 +114,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		}
 	}
 	public function read($id){
-		$query = 'SELECT '.$this->select_columns.'
+		$query = 'SELECT '.self::SELECT_COLUMNS.'
 		          FROM tbl_users
 		          WHERE pk_users=\''.$id.'\'';
 		$query = $this->slaveQuery(new MySQLiQuery($query));
