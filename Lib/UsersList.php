@@ -17,7 +17,15 @@ class UsersList implements Output  {
 	 * @var DatabaseListHelperFilter
 	 */
 	protected $filter = null;
-	
+	/**
+	 * @var Converter
+	 */
+	private $last_timestamp_converter = null;
+	/**
+	 * @var Converter
+	 */
+	private $create_timestamp_converter = null;
+		
 	public function __construct(){
 		$this->order = new DatabaseListHelperOrder();
 		$this->filter = new DatabaseListHelperFilter();
@@ -60,6 +68,14 @@ class UsersList implements Output  {
 	public function setLastTimestampOrderASC(){
 		$this->order->set(User::FIELD_LAST_TIMESTAMP, DATABASE_ORDER_ASC);
 	}
+
+	public function setLastTimestampConverter(Converter $converter){
+		$this->last_timestamp_converter = $converter;
+	}
+	public function setCreateTimestampConverter(Converter $converter){
+		$this->create_timestamp_converter = $converter;
+	}
+		
 	
 	public function getXML(DOMDocument $xml){
 		$this->_getDAO();
@@ -67,6 +83,12 @@ class UsersList implements Output  {
 		$res = $this->dao->getList($this->filter, $this->order);
 		while ($out = $res->fetchArray()) {
 			$user = new User($out[User::FIELD_ID], $out);
+			if(!is_null($this->last_timestamp_converter)){
+				$user->setLastTimestampConverter($this->last_timestamp_converter);
+			}
+			if(!is_null($this->create_timestamp_converter)){
+				$user->setCreateTimestampConverter($this->create_timestamp_converter);
+			}
 			$users->appendChild($user->getXML($xml));
 		}
 		return $users;

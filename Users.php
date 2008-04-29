@@ -71,8 +71,8 @@ interface DAO_User {
 	/**
 	 * @return on success, return new user id, else return false
 	 */
-	public function create($username, $email, $password, $activation_string);
-	public function update($id, $username, $email, $password, $activated, $last_timestamp);
+	public function create($username, $email, $password, $activated, $activation_string);
+	public function update($id, $username, $email, $password, $activated, $activation_string, $last_timestamp);
 	/**
 	 * Read userdata into user object
 	 * 
@@ -101,7 +101,14 @@ class User extends UserComponent {
 	
 	private $last_timestamp = null;
 	private $create_timestamp = null;
-	
+	/**
+	 * @var Converter
+	 */
+	private $last_timestamp_converter = null;
+	/**
+	 * @var Converter
+	 */
+	private $create_timestamp_converter = null;
 	/**
 	 * @var DAO_User
 	 */
@@ -172,14 +179,22 @@ class User extends UserComponent {
 	}
 	public function getLastTimestamp(){
 		if(!is_null($this->last_timestamp)){
-			return $this->last_timestamp;
+			if(!is_null($this->last_timestamp_converter)){
+				return $this->last_timestamp_converter->convert($this->last_timestamp);
+			} else {
+				return $this->last_timestamp;
+			}
 		} else {
 			return false;
 		}
 	}
 	public function getCreateDate(){
 		if(!is_null($this->create_timestamp)){
-			return $this->create_timestamp;
+			if(!is_null($this->create_timestamp_converter)){
+				return $this->create_timestamp_converter->convert($this->create_timestamp);
+			} else {
+				return $this->create_timestamp;
+			}
 		} else {
 			return false;
 		}
@@ -212,6 +227,17 @@ class User extends UserComponent {
 		} else {
 			$this->last_timestamp = $timestamp;
 		}
+	}
+	public function setActive($active=true){
+		$this->activated = $active;
+		$this->activation_string = null;
+	}
+	
+	public function setLastTimestampConverter(Converter $converter){
+		$this->last_timestamp_converter = $converter;
+	}
+	public function setCreateTimestampConverter(Converter $converter){
+		$this->create_timestamp_converter = $converter;
 	}
 	
 	public function isActive(){
@@ -247,7 +273,6 @@ class User extends UserComponent {
 	public function read(){
 		return $this->_read();
 	}
-	
 	
 	public function getXML(DOMDocument $xml){
 		$user = $xml->createElement('user');
@@ -289,7 +314,6 @@ class User extends UserComponent {
 		$user = array('user'=>&$user);
 		return $user;		
 	}	
-	
 	
 	private function _setFromArray($array){
 		if(!is_null($array[self::FIELD_ID])){
@@ -336,7 +360,10 @@ class User extends UserComponent {
 		}
 	}
 	private function _create(){
-		if($this->id = $this->dao->create($this->username, $this->email, $this->password, md5($this->username.$this->email))){
+		if(!$this->activated){
+			$this->activation_string = md5($this->username.$this->email);
+		}
+		if($this->id = $this->dao->create($this->username, $this->email, $this->password, $this->activated, $this->activation_string)){
 			$this->_read();
 			return true;
 		} else {
@@ -344,7 +371,7 @@ class User extends UserComponent {
 		}		
 	}
 	private function _update(){
-		if($this->dao->update($this->id, $this->username, $this->email, $this->password, $this->activated, $this->last_timestamp)){
+		if($this->dao->update($this->id, $this->username, $this->email, $this->password, $this->activated, $this->activation_string, $this->last_timestamp)){
 			return true;
 		} else {
 			return false;

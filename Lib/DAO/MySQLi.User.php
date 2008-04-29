@@ -70,15 +70,16 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		return $query->fetchArray();
 	}	
-	public function create($username, $email, $password, $activation_string){
+	public function create($username, $email, $password, $activated, $activation_string){
 		$this->startTransaction();
 		if(!$this->isUsernameAvailable(null, $username) || !$this->isEmailAvailable(null, $email)){
 			$this->rollback();
 			return false;
 		} else {
-			$activation_string = $this->_parseNullValue($activation_string);
-			$query = 'INSERT INTO tbl_users(username, password, email, activation_string)
-			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', '.$activation_string.')';
+			$activation_string = MySQLiTools::parseNullValue($activation_string);
+			$activated = MySQLiTools::parseBooleanValue($activated);
+			$query = 'INSERT INTO tbl_users(username, password, email, activated, activation_string)
+			          VALUES(\''.$username.'\', \''.$password.'\', \''.$email.'\', '.$activated.', '.$activation_string.')';
 			$query = $this->masterQuery(new MySQLiQuery($query));
 			if($id = (int) $query->getInsertID()){
 				$this->commit();
@@ -89,19 +90,22 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 			}
 		}
 	}
-	public function update($id, $username, $email, $password, $activated, $last_timestamp){
+	public function update($id, $username, $email, $password, $activated, $activation_string, $last_timestamp){
 		$this->startTransaction();
 		if(!$this->isUsernameAvailable($id, $username) || !$this->isEmailAvailable($id, $email)){
 			$this->rollback();
 			return false;
 		} else {
-			$activated = $this->_parseBooleanValue($activated);
+			$activated = MySQLiTools::parseBooleanValue($activated);
+			$last_timestamp = MySQLiTools::parseNullValue($last_timestamp);
+			$activation_string = MySQLiTools::parseNullValue($activation_string);
 			$query = 'UPDATE tbl_users
 			          SET username=\''.$username.'\',
 			              email=\''.$email.'\',
 			              password=\''.$password.'\',
 			              activated='.$activated.',
-			              last_timestamp=FROM_UNIXTIME(\''.$last_timestamp.'\')
+			              activation_string='.$activation_string.',
+			              last_timestamp=IF('.$last_timestamp.' IS NULL, NULL, FROM_UNIXTIME('.$last_timestamp.'))
 			          WHERE pk_users=\''.$id.'\'';
 			$query = $this->masterQuery(new MySQLiQuery($query));
 			if($query->getAffectedRows() > 0){
