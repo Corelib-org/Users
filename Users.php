@@ -47,9 +47,15 @@ abstract class UserComponent implements Output  {
 	 * @var UserComponent parent component
 	 */
 	protected $parent = null;
-		
+	
+	public function commit(){ }
+	
 	public function getID(){
-		return $this->parent->getID();
+		if(!is_null($this->parent)){
+			return $this->parent->getID();
+		} else {
+			return false;
+		}
 	}
 	public function getPassword(){
 		return $this->parent->getPassword();
@@ -64,9 +70,21 @@ abstract class UserComponent implements Output  {
 	
 	public function addComponent(UserComponent $component){
 		$this->components[] = $component;
+		$component->setParentComponent($this);
+		return $component;
+	}
+	
+	public function setParentComponent(UserComponent $component){
+		$this->parent = $component;
+		return $component;
+	}
+	
+	public function removeComponents(){
+		$this->components = array();
+		return true;
 	}
 }
-
+	
 interface DAO_User {
 	/**
 	 * @return on success, return new user id, else return false
@@ -244,7 +262,7 @@ class User extends UserComponent {
 		return $this->activated;
 	}
 	
-	public function commit(){
+	public function commit($recursive=true){
 		$event = EventHandler::getInstance();
 		$this->_getDAO();
 		try {
@@ -257,6 +275,10 @@ class User extends UserComponent {
 				} else {
 					$r = $this->_update();
 				}
+				while(list(,$val) = each($this->components)){
+					$val->commit($recursive);
+				}
+				reset($this->components);
 				$event->triggerEvent(new UserModifyAfterCommit($this));
 				return $r;
 			}
@@ -294,6 +316,7 @@ class User extends UserComponent {
 		if(!is_null($this->getCreateDate())){
 			$user->setAttribute('create_timestamp', $this->getCreateDate());
 		}
+		$this->getComponentsXML($xml, $user);
 		return $user;
 	}	
 	public function &getArray(){ 

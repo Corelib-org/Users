@@ -103,6 +103,13 @@ class UsersAuthorization implements Singleton,Output {
 	public function getUID(){
 		return $this->decorator->getUID();	
 	}
+	public function getUser(){
+		if(!is_null($this->user)){
+			return clone $this->user;
+		} else {
+			return false;
+		}
+	}
 	public function reset(){
 		$session = SessionHandler::getInstance();
 		$session->remove(__CLASS__);
@@ -131,6 +138,11 @@ class UsersAuthorization implements Singleton,Output {
 			}
 		}
 	}
+	
+	public function reload(){
+		$this->user->read();
+	}
+	
 	public function isAuthed(){
 		return $this->auth;
 	}
@@ -161,6 +173,9 @@ class UsersAuthorization implements Singleton,Output {
 		$session->remove(__CLASS__);
 	}
 	public function store(){
+		if(!is_null($this->user)){
+			$this->user->removeComponents();
+		}
 		$session = SessionHandler::getInstance();
 		$session->set(__CLASS__, serialize($this));	
 	}

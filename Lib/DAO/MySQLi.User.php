@@ -12,7 +12,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	                        UNIX_TIMESTAMP(last_timestamp) AS last_timestamp'; 
 	
 	/**
-	 *	@return Database
+	 *	@return MySQLi_User
 	 */
 	public static function getInstance(){
 		if(is_null(self::$instance)){
@@ -91,6 +91,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 		}
 	}
 	public function update($id, $username, $email, $password, $activated, $activation_string, $last_timestamp){
+		
 		$this->startTransaction();
 		if(!$this->isUsernameAvailable($id, $username) || !$this->isEmailAvailable($id, $email)){
 			$this->rollback();
@@ -108,6 +109,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 			              last_timestamp=IF('.$last_timestamp.' IS NULL, NULL, FROM_UNIXTIME('.$last_timestamp.'))
 			          WHERE pk_users=\''.$id.'\'';
 			$query = $this->masterQuery(new MySQLiQuery($query));
+			
 			if($query->getAffectedRows() > 0){
 				$this->commit();
 				return true;
