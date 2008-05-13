@@ -22,9 +22,9 @@ class MySQLi_UsersList extends DatabaseDAO implements Singleton,DAO_UsersList {
 		} else {
 			$order = 'ORDER BY '.$order;
 		}
-		
+		$where = 'WHERE deleted=\'FALSE\' ';		
 		if($filter->count() > 0){
-			$where = 'WHERE 1 ';
+			
 			if($username = $filter->get(User::FIELD_USERNAME)){
 				$where .= 'AND '.User::FIELD_USERNAME.' LIKE \''.MySQLiTools::parseWildcards($username).'\' ';
 			}
@@ -34,8 +34,6 @@ class MySQLi_UsersList extends DatabaseDAO implements Singleton,DAO_UsersList {
 			if($activated = $filter->get(User::FIELD_ACTIVATED)){
 				$where .= 'AND '.User::FIELD_ACTIVATED.'='.MySQLiTools::parseBooleanValue($activated).' ';
 			}
-		} else {
-			$where = '';
 		}
 		
 		if(!$limit = MySQLiTools::prepareLimitStatement($offset, $limit)){

@@ -24,30 +24,33 @@ abstract class UserModifyEvent implements Event {
 class UserModifyBeforeCommit extends UserModifyEvent {
 	
 }
-class UserModifyBeforeDelete extends UserModifyEvent {
-	
-}
 class UserModifyAfterCommit extends UserModifyEvent {
 	
 }
-class UserModifyAfterDelete extends UserModifyEvent {
+class UserModifyBeforeDelete extends UserModifyEvent {
+	private $permanent = false;
+	
+	public function __construct(UserComponent $user, $permanent=false){
+		$this->permanent = $permanent;
+		parent::__construct($user);
+	}
+	
+	public function getIsPermanent(){
+		return $this->permanent;
+	}
+}
+class UserModifyAfterDelete extends UserModifyBeforeDelete {
 	
 }
 
-abstract class UserComponent implements Output  {
-	/**
-	 * Child UserComponents
-	 * 
-	 * @var Array instantiated components
-	 */
-	protected $components = array();
+abstract class UserComponent extends Component implements Output  {
 	/**
 	 * Parent UserComponent
 	 * 
-	 * @var UserComponent parent component
+	 * @var Component parent component
 	 */
-	protected $parent = null;
-	
+	protected $parent = null;	
+		
 	public function commit(){ }
 	
 	public function getID(){
@@ -60,13 +63,6 @@ abstract class UserComponent implements Output  {
 	public function getPassword(){
 		return $this->parent->getPassword();
 	}
-		
-	public function getComponentsXML(DOMDocument $xml, DOMElement $DOMnode){
-		while(list(,$val) = each($this->components)){
-			$DOMnode->appendChild($val->getXML($xml));
-		}
-		reset($this->components);
-	}
 	
 	public function addComponent(UserComponent $component){
 		$this->components[] = $component;
@@ -77,11 +73,6 @@ abstract class UserComponent implements Output  {
 	public function setParentComponent(UserComponent $component){
 		$this->parent = $component;
 		return $component;
-	}
-	
-	public function removeComponents(){
-		$this->components = array();
-		return true;
 	}
 }
 	
@@ -279,8 +270,10 @@ class User extends UserComponent {
 					$val->commit($recursive);
 				}
 				reset($this->components);
-				$event->triggerEvent(new UserModifyAfterCommit($this));
-				return $r;
+				if($r){
+					$event->triggerEvent(new UserModifyAfterCommit($this));
+					return $r;
+				}
 			}
 		} catch (BaseException $e){
 			echo $e;
@@ -289,8 +282,14 @@ class User extends UserComponent {
 		return false;
 	}
 	public function delete($permanent=false){
-		// TODO make permanent deletion method
-		return $this->dao->delete($this->id);
+		$event = EventHandler::getInstance();
+		$event->triggerEvent(new UserModifyBeforeDelete($this, $permanent));
+		if($this->dao->delete($this->id, $permanent)){
+			$event->triggerEvent(new UserModifyAfterDelete($this, $permanent));
+			return true;	
+		} else {
+			return false;
+		}
 	}
 	public function read(){
 		return $this->_read();

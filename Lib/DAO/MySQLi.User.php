@@ -122,15 +122,20 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	public function read($id){
 		$query = 'SELECT '.self::SELECT_COLUMNS.'
 		          FROM tbl_users
-		          WHERE pk_users=\''.$id.'\'';
+		          WHERE pk_users=\''.$id.'\'
+		            AND deleted=\'FALSE\'';
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		return $query->fetchArray();
 	}	
-	public function delete($id){
-		$query = 'UPDATE tbl_users
-		          SET activated=\'FALSE\',
-		              activation_string=\'DELETED\'
-		          WHERE pk_users=\''.$id.'\'';
+	public function delete($id, $permanent=false){
+		if(!$permanent){
+			$query = 'UPDATE tbl_users
+			          SET deleted=\'TRUE\'
+			          WHERE pk_users=\''.$id.'\'';
+		} else {
+			$query = 'DELETE FROM tbl_users
+			          WHERE pk_users=\''.$id.'\'';
+		}
 		$query = $this->masterQuery(new MySQLiQuery($query));
 		if($query->getAffectedRows() > 0){
 			return true;
