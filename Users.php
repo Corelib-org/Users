@@ -266,11 +266,14 @@ class User extends UserComponent {
 				} else {
 					$r = $this->_update();
 				}
-				while(list(,$val) = each($this->components)){
-					$val->commit($recursive);
-				}
-				reset($this->components);
+				
 				if($r){
+					if($recursive){
+						while(list(,$val) = each($this->components)){
+							$val->commit($recursive);
+						}
+						reset($this->components);
+					}
 					$event->triggerEvent(new UserModifyAfterCommit($this));
 					return $r;
 				}

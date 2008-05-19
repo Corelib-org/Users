@@ -88,7 +88,9 @@ class UsersInformation extends UserComponent implements Output {
 		try {
 			$event->triggerEvent(new UsersInformationModifyBeforeCommit($this));
 			$r = $this->_update();
-			$event->triggerEvent(new UsersInformationModifyAfterCommit($this));
+			if($r){
+				$event->triggerEvent(new UsersInformationModifyAfterCommit($this));
+			}
 			return $r;
 		} catch (BaseException $e){
 			echo $e;

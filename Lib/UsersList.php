@@ -1,6 +1,6 @@
 <?php
 interface DAO_UsersList {
-	public function getList(DatabaseListHelperFilter $filter, DatabaseListHelperOrder $order);
+	public function getList(DatabaseListHelperFilter $filter, DatabaseListHelperOrder $order, $offset=null, $limit=null);
 }
 
 class UsersList implements Output  {
