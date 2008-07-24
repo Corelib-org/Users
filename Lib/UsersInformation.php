@@ -51,6 +51,7 @@ class UsersInformation extends UserComponent implements Output {
 	 */
 	private $information = null;
 	private $value = null;
+	private $items = null;
 	
 	private $dao = null;
 	
@@ -60,15 +61,28 @@ class UsersInformation extends UserComponent implements Output {
 	
 	const DAO = 'UsersInformation';
 
-	public function __construct($id, $array = array()){
+	public function __construct($id=null, $array = array()){
 		$this->information = new Information($id);
 		if(sizeof($array) > 0){
 			$this->_setFromArray($array);
 		}
 	}
 		
+	public function getByIdent($ident, $readitems=false){
+		return $this->information->getByIdent($ident, $readitems);
+	}
+	
 	public function setValue($value){
 		$this->value = $value;
+	}
+	
+	public function addItem(InformationItem $item){
+		if($this->information->hasItem($item)){
+			$this->items[$item->getID()] = $item;
+			return true;
+		} else {
+			return false;
+		}
 	}
 	
 	public function getValue(){
