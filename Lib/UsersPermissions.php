@@ -25,6 +25,20 @@ class Permission implements Output {
 			echo $e;
 		}
 	}
+	
+	public function getByIdent($ident, $readitems=false){
+		$this->_getDAO(false);
+		$this->_setFromArray($this->dao->getByIdent($ident));
+		if(is_null($this->id)){
+			return false;	
+		} else {
+			if($readitems){
+				$this->_readItems();
+			}			
+			return true;	
+		}
+	}
+	
 	public function setIdent($ident){
 		try {
 			if(is_string($ident) && strlen($ident) <= 255){
@@ -253,6 +267,7 @@ class UsersPermissions extends UserDecorator {
 }
 
 interface DAO_UserPermissions {
+	public function getByIdent($ident);
 	public function createPermission($ident, $name=null);
 	public function setPermissionInformation($id, $ident, $name=null);
 	public function getPermissionById($id);

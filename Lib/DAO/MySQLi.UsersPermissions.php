@@ -15,6 +15,14 @@ class MySQLi_UsersPermissions extends DatabaseDAO implements Singleton,DAO_UserP
 		return self::$instance;	
 	}
 	
+	public function getByIdent($ident){
+		$query = 'SELECT '.self::SELECT_COLUMNS.'
+		          FROM tbl_information
+		          WHERE ident LIKE \''.$ident.'\'';
+		$query = $this->slaveQuery(new MySQLiQuery($query));
+		return $query->fetchArray();
+	}			
+	
 	public function createPermission($ident, $name=null){
 		if(is_null($name)){
 			$name = 'NULL';
