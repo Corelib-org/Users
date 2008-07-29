@@ -35,16 +35,6 @@ class UsersInformationList extends UserComponent implements Output  {
 		while ($out = $res->fetchArray()) {
 			$info = new UsersInformation($out[UsersInformation::FIELD_INFOMATION_ID], $out);
 			$list->appendChild($info->getXML($xml));
-			
-			// print_r($out);
-/*			$user = new User($out[User::FIELD_ID], $out);
-			if(!is_null($this->last_timestamp_converter)){
-				$user->setLastTimestampConverter($this->last_timestamp_converter);
-			}
-			if(!is_null($this->create_timestamp_converter)){
-				$user->setCreateTimestampConverter($this->create_timestamp_converter);
-			}
-			$users->appendChild($user->getXML($xml)); */
 		}
 		return $list;
 	}
