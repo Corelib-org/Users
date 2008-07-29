@@ -51,8 +51,6 @@ abstract class UserComponent extends Component implements Output  {
 	 */
 	protected $parent = null;	
 		
-	public function commit(){ }
-	
 	public function getID(){
 		if(!is_null($this->parent)){
 			return $this->parent->getID();
@@ -73,6 +71,18 @@ abstract class UserComponent extends Component implements Output  {
 	public function setParentComponent(UserComponent $component){
 		$this->parent = $component;
 		return $component;
+	}
+	
+	protected function _commitComponents($recursive=true){
+		if($recursive){
+			foreach ($this->components as $component){
+				$component->commit();
+			}
+		}
+	}
+	
+	public function commit($recursive=true){
+		$this->_commitComponents($recursive);
 	}
 }
 	
@@ -268,12 +278,7 @@ class User extends UserComponent {
 				}
 				
 				if($r){
-					if($recursive){
-						while(list(,$val) = each($this->components)){
-							$val->commit($recursive);
-						}
-						reset($this->components);
-					}
+					parent::commit($recursive);
 					$event->triggerEvent(new UserModifyAfterCommit($this));
 					return $r;
 				}

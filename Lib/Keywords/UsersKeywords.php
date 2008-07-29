@@ -1,70 +1,51 @@
 <?php
-interface DAO_UsersKeywordsList {
-	public function getList(DatabaseListHelperFilter $filter, DatabaseListHelperOrder $order, $offset=null, $limit=null);
+interface DAO_UsersKeywordList {
+	public function getList(DatabaseListHelperFilter $filter);
 }
 
-class UsersKeywordsList implements Output  {
-	/**
-	 * @var DAO_UsersKeywordsList
-	 */
-	private $dao = null;
+class UsersKeywordList extends UserComponent implements Output  {
 	
-	/**
-	 * @var DatabaseListHelperOrder
-	 */
-	protected $order = null;
 	/**
 	 * @var DatabaseListHelperFilter
 	 */
 	protected $filter = null;
-
-	private $limit = null;
-	private $offset = null;
 	
-	public function __construct(){
-		$this->order = new DatabaseListHelperOrder();
+	/**
+	 * @var DAO_UsersInformationList
+	 */
+	private $dao = null;
+	
+	public function __construct($item=null /*, [$items...] */){
 		$this->filter = new DatabaseListHelperFilter();
+		$items = func_get_args();
+		if(count($items) > 0){
+			$this->filter->set(UsersInformation::FIELD_INFOMATION_ID, $items);
+		}		
 	}
 	
-	
-	public function setTitleFilter($title){
-		$this->filter->set(UsersKeywords::FIELD_TITLE, $title);
+	public function setParentComponent(UserComponent $component){
+		$this->filter->set(UsersInformation::FIELD_USER_ID, $component->getID());
+		return parent::setParentComponent($component);
 	}
-	public function setTitleOrderDESC(){
-		$this->order->set(UsersKeywords::FIELD_TITLE, DATABASE_ORDER_DESC);
-	}
-	public function setTitleOrderASC(){
-		$this->order->set(UsersKeywords::FIELD_TITLE, DATABASE_ORDER_ASC);
-	}
-
-	public function setLimit($limit){
-		$this->limit = $limit;
-	}
-
-	public function setOffset($offset){
-		$this->offset = $offset;
-	}
-	
+		
 	public function getXML(DOMDocument $xml){
 		$this->_getDAO();
-		$res = $this->dao->getList($this->filter, $this->order, $this->offset, $this->limit);
-		$list = $xml->createElement('');
-		
+		$list = $xml->createElement('keywords');
+		$res = $this->dao->getList($this->filter);
 		while ($out = $res->fetchArray()) {
-			$item = new UsersKeywords($out[UsersKeywords::FIELD_ID], $out);
-			$list->appendChild($item->getXML($xml));
+			$keyword = new UsersKeyword($out[UsersKeyword::FIELD_KEYWORD_ID], $out);
+			$list->appendChild($keyword->getXML($xml));
 		}
-
 		return $list;
 	}
-	
+
 	public function &getArray(){
 		
 	}
 	
 	private function _getDAO(){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO('UsersKeywordsList');
+			$this->dao = Database::getDAO('UsersInformationList');
 		}
 		return true;
 	}
