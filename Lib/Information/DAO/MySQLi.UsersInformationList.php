@@ -13,14 +13,16 @@ class MySQLi_UsersInformationList extends DatabaseDAO implements Singleton,DAO_U
 	}
 	
 	public function getList(DatabaseListHelperFilter $filter){
-		
+		$join = '';
+
 		if($filter->count() > 0){
 			$where = 'WHERE 1 ';
 			if($userid = $filter->get(UsersInformation::FIELD_USER_ID)){
 				$where .= 'AND '.UsersInformation::FIELD_USER_ID.'=\''.($userid).'\' ';
 			}
 			if($fields = $filter->get(UsersInformation::FIELD_INFOMATION_ID)){
-				$where .= 'AND '.UsersInformation::FIELD_INFOMATION_ID.' IN('.implode(',', $fields).') ';
+				$where .= 'AND ('.UsersInformation::FIELD_INFOMATION_ID.' '.MySQLiTools::makeInStatement($fields).' OR '.Information::FIELD_IDENT.' '.MySQLiTools::makeInStatement($fields).')';
+				$join .= 'INNER JOIN tbl_information ON '.UsersInformation::FIELD_INFOMATION_ID.'='.Information::FIELD_ID.' ';
 			}
 		} else {
 			$where = '';
@@ -28,6 +30,7 @@ class MySQLi_UsersInformationList extends DatabaseDAO implements Singleton,DAO_U
 		
 		$query = 'SELECT '.MySQLi_UsersInformation::SELECT_COLUMNS.'
 		          FROM tbl_users_has_information
+		          '.$join.'
 		          '.$where;
 		return $this->query(new MySQLiQuery($query));
 	}
