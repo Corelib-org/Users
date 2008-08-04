@@ -44,13 +44,6 @@ class UserModifyAfterDelete extends UserModifyBeforeDelete {
 }
 
 abstract class UserComponent extends Component implements Output  {
-	/**
-	 * Parent UserComponent
-	 * 
-	 * @var Component parent component
-	 */
-	protected $parent = null;	
-		
 	public function getID(){
 		if(!is_null($this->parent)){
 			return $this->parent->getID();
@@ -63,26 +56,11 @@ abstract class UserComponent extends Component implements Output  {
 	}
 	
 	public function addComponent(UserComponent $component){
-		$this->components[] = $component;
-		$component->setParentComponent($this);
-		return $component;
+		return parent::addComponent($component);
 	}
 	
 	public function setParentComponent(UserComponent $component){
-		$this->parent = $component;
-		return $component;
-	}
-	
-	protected function _commitComponents($recursive=true){
-		if($recursive){
-			foreach ($this->components as $component){
-				$component->commit();
-			}
-		}
-	}
-	
-	public function commit($recursive=true){
-		$this->_commitComponents($recursive);
+		return parent::setParentComponent($component);
 	}
 }
 	
