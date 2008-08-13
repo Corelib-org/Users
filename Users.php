@@ -83,6 +83,8 @@ interface DAO_User {
 	public function getByEmail($email, $checkvalid=true);	
 }
 
+abstract class UserView extends View { }
+abstract class UserViewList implements ViewList { }
 
 class User extends UserComponent {
 	/**
