@@ -254,7 +254,8 @@ class User extends UserComponent {
 				if(is_null($this->id)){
 					$r = $this->_create();
 				} else {
-					$r = $this->_update();
+					$this->_update();
+					$r = true;
 				}
 				
 				if($r){

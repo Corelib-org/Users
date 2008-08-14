@@ -31,6 +31,9 @@ class UsersInformationModifyAfterDelete extends UsersInformationModify  {
 }
 
 interface DAO_UsersInformation {
+	public function readItems($userid, $infoid, $strict=true);
+	public function addItem($articleid,$infoid,$itemid);
+	
 	/**
 	 * @return boolean true on success, else return false
 	 */	
@@ -51,13 +54,14 @@ class UsersInformation extends UserComponent implements Output {
 	 */
 	private $information = null;
 	private $value = null;
-	private $items = null;
+	private $items = array();
 	
 	private $dao = null;
 	
 	const FIELD_USER_ID = 'fk_users';
 	const FIELD_INFOMATION_ID = 'fk_information';
 	const FIELD_VALUE = 'value';
+	const FIELD_INFOMATION_ITEM_ID = 'fk_information_items';
 	
 	const DAO = 'UsersInformation';
 
@@ -67,17 +71,26 @@ class UsersInformation extends UserComponent implements Output {
 			$this->_setFromArray($array);
 		}
 	}
-		
-	public function getByIdent($ident, $readitems=false){
-		return $this->information->getByIdent($ident, $readitems);
-	}
 	
+	public function getByIdent($ident, $readitems=false, $strict=true){
+		$this->_getDAO(false);
+		if($this->information->getByIdent($ident, false)) {
+			$this->read();
+			if($readitems){
+				$this->readItems($strict);
+			}
+			return true;
+		} else {
+			return false;
+		}
+	}	
+		
 	public function setValue($value){
 		$this->value = $value;
 	}
 	
 	public function addItem(InformationItem $item){
-		if($this->information->hasItem($item)){
+		if($this->hasItem($item)){
 			$this->items[$item->getID()] = $item;
 			return true;
 		} else {
@@ -85,27 +98,46 @@ class UsersInformation extends UserComponent implements Output {
 		}
 	}
 	
+	public function hasItem(InformationItem $item){
+		return $this->information->hasItem($item);
+	}
+	
 	public function getValue(){
 		return $this->value;
 	}
-	
+	public function removeItems(){
+		$this->items = array();
+	}
 	public function delete(){
 		return $this->dao->delete($this->getID(), $this->information->getID());
 	}
 	public function read(){
 		return $this->_read();
 	}
-		
+
+	public function readItems($strict=true){
+		$this->_getDAO(false);
+		$query = $this->dao->readItems($this->getID(), $this->information->getID(), $strict);
+		while($out = $query->fetchArray()){
+			$item = $this->information->addItem(new InformationItem($out[InformationItem::FIELD_ID], $out));
+			if(!is_null($out[self::FIELD_USER_ID])){
+				$item->setSelected();
+				$this->addItem($item);
+			}
+		}
+	}	
+	
 	public function commit(){
 		$event = EventHandler::getInstance();
 		$this->_getDAO();
 		try {
 			$event->triggerEvent(new UsersInformationModifyBeforeCommit($this));
-			$r = $this->_update();
-			if($r){
-				$event->triggerEvent(new UsersInformationModifyAfterCommit($this));
-			}
-			return $r;
+			$this->_update();
+			foreach ($this->items as $item){
+				$this->dao->addItem($this->getID(), $this->information->getID(), $item->getID());
+			}			
+			$event->triggerEvent(new UsersInformationModifyAfterCommit($this));
+			return true;
 		} catch (BaseException $e){
 			echo $e;
 			exit;
@@ -120,6 +152,7 @@ class UsersInformation extends UserComponent implements Output {
 		}
 		return $info;
 	}
+	
 	public function &getArray(){ 
 
 	}
@@ -135,10 +168,15 @@ class UsersInformation extends UserComponent implements Output {
 	}
 
 	protected function _update(){
-		if($this->dao->update($this->getID(), $this->information->getID(), $this->value)){
-			return true;
+		$this->delete();
+		if(!is_null($this->value)){
+			if($this->dao->update($this->getID(), $this->information->getID(), $this->value)){
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			return true;
 		}
 	}
 	protected function _setFromArray($array){
