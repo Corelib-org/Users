@@ -105,7 +105,7 @@ class UsersAuthorization implements Singleton,Output {
 	}
 	public function getUser(){
 		if(!is_null($this->user)){
-			return clone $this->user;
+			return $this->user;
 		} else {
 			return false;
 		}
@@ -148,17 +148,20 @@ class UsersAuthorization implements Singleton,Output {
 	}
 	public function login(User $user, $password, $hash=false){
 		$this->user = $user;
+		
 		if(!$hash){
 			$password = sha1($password);
 		}
-		
+					
 		if($password == $this->user->getPassword()){
 			$this->auth = true;
 			$this->ip = $_SERVER['REMOTE_ADDR'];
 			$this->reloadPermissions();
+
 			$this->store();
 			$this->user->setLastTimestamp();
 			$this->user->commit();
+			
 			return true;
 		} else {
 			return false;	
@@ -176,8 +179,12 @@ class UsersAuthorization implements Singleton,Output {
 		if(!is_null($this->user)){
 			$this->user->removeComponents();
 		}
-		$session = SessionHandler::getInstance();
-		$session->set(__CLASS__, serialize($this));	
+		
+		if($this->isAuthed()){
+			$this->dao = null;
+			$session = SessionHandler::getInstance();
+			$session->set(__CLASS__, serialize($this));
+		}	
 	}
 	public function checkPermissions($item1=null, $item2=null, $item3=null){
 		$array = func_get_args();

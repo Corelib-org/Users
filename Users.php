@@ -198,6 +198,9 @@ class User extends UserComponent {
 			return false;
 		}
 	}
+	public function getActivationString(){
+		return $this->activation_string;
+	}
 		
 	public function setUsername($username){
 		$this->_getDAO();
