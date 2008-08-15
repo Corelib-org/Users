@@ -1,0 +1,33 @@
+Changelog For Users
+-------------------
+Last Changed: $Revision$ $Date$
+
+Revision: 2499 Date: 2006-07-20 14:39:03 +0200 (Thu, 20 Jul 2006)
+-----------------------------------------------------------------
+*	Changed Database structure on tbl_users
+		create_timestamp converted from integer to timestamp
+		last_timestamp converted from integer to timestamp
+
+Revision: 2497 Date: 2006-07-20 14:18:29 +0200 (Thu, 20 Jul 2006)
+-----------------------------------------------------------------
+*	Added Users::updateLastTimestamp($timestamp=null)
+		This allows to set last_timestamp
+		
+*	Added DAO_User::updateLastTimestamp($id, $timestamp)
+		This allow to set last_timestamp, see also 
+		Users::updateLastTimestamp
+		
+* 	Added MySQLi_User::updateLastTimestamp($id, $timestamp)
+		This allow to set last_timestamp, see also 
+		Users::updateLastTimestamp
+
+		
+Revision: 2096 Date: 2006-05-31 16:25:35 +0200 (Wed, 31 May 2006)
+-----------------------------------------------------------------
+*	Added UsersDecorator::getUsername()
+
+*	Changed UsersDecorator::getUID()
+		this function is not abstract any more, instead a simple
+		implementation of getUID() have been implemented
+
+*	ChangeLog Started
