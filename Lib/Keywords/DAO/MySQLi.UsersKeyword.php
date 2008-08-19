@@ -37,7 +37,6 @@ class MySQLi_UsersKeyword extends DatabaseDAO implements Singleton,DAO_UsersKeyw
 		          FROM tbl_users_has_keywords
 		          INNER JOIN tbl_keywords ON '.UsersKeyword::FIELD_KEYWORD_ID.'='.Keyword::FIELD_ID.'
 		          WHERE '.UsersKeyword::FIELD_USER_ID.'=\''.$userid.'\'';
-		echo $query;
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		return $query->fetchArray();
 	}
