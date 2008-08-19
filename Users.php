@@ -45,12 +45,26 @@ class UserModifyAfterDelete extends UserModifyBeforeDelete {
 
 abstract class UserComponent extends Component implements Output  {
 	public function getID(){
+		try {
+			throw new BaseException('Deprecated, use getUserID() instead', E_USER_WARNING);
+			if(!is_null($this->parent)){
+				return $this->parent->getID();
+			} else {
+				return false;
+			}
+		} catch (BaseException $e){
+			echo $e;
+		}
+	}
+	
+	public function getUserID(){
 		if(!is_null($this->parent)){
-			return $this->parent->getID();
+			return $this->parent->getUserID();
 		} else {
 			return false;
 		}
 	}
+	
 	public function getPassword(){
 		return $this->parent->getPassword();
 	}
@@ -155,6 +169,11 @@ class User extends UserComponent {
 			return false;
 		}
 	}
+	
+	public function getUserID(){
+		return $this->getID();
+	}
+	
 	public function getPassword(){
 		if(!is_null($this->password)){
 			return $this->password;

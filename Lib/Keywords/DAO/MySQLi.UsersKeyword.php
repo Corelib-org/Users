@@ -2,10 +2,10 @@
 class MySQLi_UsersKeyword extends DatabaseDAO implements Singleton,DAO_UsersKeyword {
 	private static $instance = null;
 	
-	const SELECT_COLUMS = 'fk_users,
-	                       fk_keywords,
-	                       pk_keywords,
-	                       keyword';
+	const SELECT_COLUMNS = 'fk_users,
+	                        fk_keywords,
+	                        pk_keywords,
+	                        keyword';
 	
 	/**
 	 *	@return MySQLi_UsersKeyword
@@ -33,10 +33,11 @@ class MySQLi_UsersKeyword extends DatabaseDAO implements Singleton,DAO_UsersKeyw
 		}
 	}
 	public function read($userid, $keywordid){
-		$query = 'SELECT '.self::SELECT_COLUMS.'
+		$query = 'SELECT '.self::SELECT_COLUMNS.'
 		          FROM tbl_users_has_keywords
 		          INNER JOIN tbl_keywords ON '.UsersKeyword::FIELD_KEYWORD_ID.'='.Keyword::FIELD_ID.'
 		          WHERE '.UsersKeyword::FIELD_USER_ID.'=\''.$userid.'\'';
+		echo $query;
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		return $query->fetchArray();
 	}

@@ -117,7 +117,7 @@ class UsersInformation extends UserComponent implements Output {
 
 	public function readItems($strict=true){
 		$this->_getDAO(false);
-		$query = $this->dao->readItems($this->getID(), $this->information->getID(), $strict);
+		$query = $this->dao->readItems($this->getUserID(), $this->information->getID(), $strict);
 		while($out = $query->fetchArray()){
 			$item = $this->information->addItem(new InformationItem($out[InformationItem::FIELD_ID], $out));
 			if(!is_null($out[self::FIELD_USER_ID])){
@@ -189,7 +189,7 @@ class UsersInformation extends UserComponent implements Output {
 	}
 	protected function _read(){
 		$this->_getDAO(false);
-		if($array = $this->dao->read($this->getID(), $this->information->getID())){
+		if($array = $this->dao->read($this->getUserID(), $this->information->getID())){
 			$this->_setFromArray($array);
 			return true;
 		} else {

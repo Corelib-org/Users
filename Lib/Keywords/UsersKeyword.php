@@ -73,8 +73,16 @@ class UsersKeyword extends UserComponent implements Output {
 		return $this->keyword->setKeyword($keyword);
 	}
 	
+	public function getKeyword(){
+		return $this->keyword->getKeyword();
+	}
+	
+	public function getID(){
+		return $this->keyword->getID();
+	}
+	
 	public function delete(){
-		return $this->dao->delete($this->getID(), $this->keyword->getID());
+		return $this->dao->delete($this->getUserID(), $this->keyword->getID());
 	}
 	public function read(){
 		return $this->_read();
@@ -118,7 +126,7 @@ class UsersKeyword extends UserComponent implements Output {
 	}
 
 	protected function _update(){
-		if($this->dao->update($this->getID(), $this->keyword->getID())){
+		if($this->dao->update($this->getUserID(), $this->keyword->getID())){
 			return true;
 		} else {
 			return false;

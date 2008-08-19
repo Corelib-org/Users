@@ -1,9 +1,11 @@
 <?php
-interface DAO_UsersKeywordList {
+interface DAO_UsersKeywords {
 	public function getList(DatabaseListHelperFilter $filter);
+	public function getListCount(DatabaseListHelperFilter $filter);
+	public function removeAllKeywords($userid);
 }
 
-class UsersKeywordList extends UserComponent implements Output  {
+class UsersKeywords extends UserComponent implements Output  {
 	
 	/**
 	 * @var DatabaseListHelperFilter
@@ -15,6 +17,8 @@ class UsersKeywordList extends UserComponent implements Output  {
 	 */
 	private $dao = null;
 	
+	private $keywords = null;
+	
 	public function __construct($item=null /*, [$items...] */){
 		$this->filter = new DatabaseListHelperFilter();
 		$items = func_get_args();
@@ -23,17 +27,54 @@ class UsersKeywordList extends UserComponent implements Output  {
 		}		
 	}
 	
+	public function addKeywords($string, $seperator = null){
+		$keywords = KeywordTools::parseKeywordList($string, $seperator);
+		foreach ($keywords as $keyword){
+			$k = new UsersKeyword();
+			$k->setKeyword($keyword);
+			$this->addKeyword($k);
+		}
+	}
+	
+	public function addKeyword(UsersKeyword $keyword){
+		$keyword->setParentComponent($this->parent);
+		$this->keywords[$keyword->getKeyword()] = $keyword;
+	}
+	
+	public function removeKeyword(UsersKeyword $keyword){
+		unset($this->keywords[$keyword->getKeyword()]);
+	}
+	
+	public function removeAllKeywords(){
+		$this->_getDAO();
+		$this->dao->removeAllKeywords($this->getUserID());
+	}
+	
 	public function setParentComponent(UserComponent $component){
 		$this->filter->set(UsersInformation::FIELD_USER_ID, $component->getID());
 		return parent::setParentComponent($component);
 	}
 		
-	public function getXML(DOMDocument $xml){
-		$this->_getDAO();
-		$list = $xml->createElement('keywords');
+	public function read(){
+		$this->_getDAO(false);
 		$res = $this->dao->getList($this->filter);
 		while ($out = $res->fetchArray()) {
-			$keyword = new UsersKeyword($out[UsersKeyword::FIELD_KEYWORD_ID], $out);
+			$this->keywords = new UsersKeyword($out[UsersKeyword::FIELD_KEYWORD_ID], $out);
+		}		
+	}
+	
+	public function commit(){
+		foreach ($this->keywords as $val){
+			$val->commit();
+		}
+	}
+	
+	public function getXML(DOMDocument $xml){
+		if(is_null($this->keywords)){
+			$this->_getDAO();
+		}
+		$list = $xml->createElement('keywords');
+		foreach ($this->keywords as $keyword){
 			$list->appendChild($keyword->getXML($xml));
 		}
 		return $list;
@@ -43,9 +84,12 @@ class UsersKeywordList extends UserComponent implements Output  {
 		
 	}
 	
-	private function _getDAO(){
+	private function _getDAO($read = true){
 		if(is_null($this->dao)){
-			$this->dao = Database::getDAO('UsersInformationList');
+			$this->dao = Database::getDAO('UsersKeywords');
+			if($read){
+				$this->read();
+			}			
 		}
 		return true;
 	}
