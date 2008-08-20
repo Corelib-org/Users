@@ -103,6 +103,12 @@ class UsersAuthorization implements Singleton,Output {
 	public function getUID(){
 		return $this->decorator->getUID();	
 	}
+	
+	/**
+	 * Returns current active User object
+	 *
+	 * @return User
+	 */
 	public function getUser(){
 		if(!is_null($this->user)){
 			return $this->user;

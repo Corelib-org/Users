@@ -109,7 +109,7 @@ class UsersInformation extends UserComponent implements Output {
 		$this->items = array();
 	}
 	public function delete(){
-		return $this->dao->delete($this->getID(), $this->information->getID());
+		return $this->dao->delete($this->getUserID(), $this->information->getID());
 	}
 	public function read(){
 		return $this->_read();
@@ -134,7 +134,7 @@ class UsersInformation extends UserComponent implements Output {
 			$event->triggerEvent(new UsersInformationModifyBeforeCommit($this));
 			$this->_update();
 			foreach ($this->items as $item){
-				$this->dao->addItem($this->getID(), $this->information->getID(), $item->getID());
+				$this->dao->addItem($this->getUserID(), $this->information->getID(), $item->getID());
 			}			
 			$event->triggerEvent(new UsersInformationModifyAfterCommit($this));
 			return true;
@@ -170,7 +170,7 @@ class UsersInformation extends UserComponent implements Output {
 	protected function _update(){
 		$this->delete();
 		if(!is_null($this->value)){
-			if($this->dao->update($this->getID(), $this->information->getID(), $this->value)){
+			if($this->dao->update($this->getUserID(), $this->information->getID(), $this->value)){
 				return true;
 			} else {
 				return false;
