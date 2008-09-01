@@ -17,7 +17,7 @@ class UsersKeywords extends UserComponent implements Output  {
 	 */
 	private $dao = null;
 	
-	private $keywords = null;
+	private $keywords = array();
 	
 	public function __construct($item=null /*, [$items...] */){
 		$this->filter = new DatabaseListHelperFilter();
@@ -59,7 +59,7 @@ class UsersKeywords extends UserComponent implements Output  {
 		$this->_getDAO(false);
 		$res = $this->dao->getList($this->filter);
 		while ($out = $res->fetchArray()) {
-			$this->keywords = new UsersKeyword($out[UsersKeyword::FIELD_KEYWORD_ID], $out);
+			$this->keywords[] = new UsersKeyword($out[UsersKeyword::FIELD_KEYWORD_ID], $out);
 		}		
 	}
 	
