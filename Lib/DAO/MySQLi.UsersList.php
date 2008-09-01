@@ -22,6 +22,30 @@ class MySQLi_UsersList extends DatabaseDAO implements Singleton,DAO_UsersList {
 		} else {
 			$order = 'ORDER BY '.$order;
 		}
+
+		if(!$limit = MySQLiTools::prepareLimitStatement($offset, $limit)){
+			$limit = '';
+		}
+		
+		$query = 'SELECT '.MySQLi_User::SELECT_COLUMNS.'
+		          FROM tbl_users
+		          '.$this->_prepareWhereStatement($filter).'
+		          '.$order.'
+		          '.$limit;
+		return $this->query(new MySQLiQuery($query));
+	}
+	
+	public function getListCount(DatabaseListHelperFilter $filter){
+		$query = 'SELECT COUNT(pk_users) AS count
+		          FROM tbl_users
+		          '.$this->_prepareWhereStatement($filter);
+		$query = $this->query(new MySQLiQuery($query));
+		$query = $query->fetchArray();
+		return $query['count'];
+	}	
+	
+	
+	private function _prepareWhereStatement(DatabaseListHelperFilter $filter){
 		$where = 'WHERE deleted=\'FALSE\' ';		
 		if($filter->count() > 0){
 			
@@ -35,17 +59,7 @@ class MySQLi_UsersList extends DatabaseDAO implements Singleton,DAO_UsersList {
 				$where .= 'AND '.User::FIELD_ACTIVATED.'='.MySQLiTools::parseBooleanValue($activated).' ';
 			}
 		}
-		
-		if(!$limit = MySQLiTools::prepareLimitStatement($offset, $limit)){
-			$limit = '';
-		}
-		
-		$query = 'SELECT '.MySQLi_User::SELECT_COLUMNS.'
-		          FROM tbl_users
-		          '.$where.'
-		          '.$order.'
-		          '.$limit;
-		return $this->query(new MySQLiQuery($query));
-	}
+		return $where;
+	}	
 }
 ?>

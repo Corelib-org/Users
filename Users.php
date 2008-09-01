@@ -114,6 +114,9 @@ class User extends UserComponent {
 	
 	private $last_timestamp = null;
 	private $create_timestamp = null;
+	private $username_converter = null;
+	private $email_converter = null;
+	
 	/**
 	 * @var Converter
 	 */
@@ -260,6 +263,12 @@ class User extends UserComponent {
 	public function setCreateTimestampConverter(Converter $converter){
 		$this->create_timestamp_converter = $converter;
 	}
+	public function setUsernameConverter(Converter $converter){
+		$this->username_converter = $converter;
+	}
+	public function setEmailConverter(Converter $converter){
+		$this->email_converter = $converter;
+	}
 	
 	public function isActive(){
 		return $this->activated;
@@ -311,9 +320,15 @@ class User extends UserComponent {
 		$user->setAttribute('id', $this->getID());
 		if(!is_null($this->getUsername())){
 			$user->setAttribute('username', $this->getUsername());
+			if(!is_null($this->username_converter)){
+				$user->setAttribute('username_converted', $this->username_converter->convert($this->getUsername()));
+			}
 		}
 		if(!is_null($this->getEmail())){
 			$user->setAttribute('email', $this->getEmail());
+			if(!is_null($this->username_converter)){
+				$user->setAttribute('email_converted', $this->email_converter->convert($this->getEmail()));
+			}
 		}
 		if(!$this->isActive()){
 			$user->setAttribute('active', 'false');
