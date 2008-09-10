@@ -58,6 +58,7 @@ class UsersKeywords extends UserComponent implements Output  {
 	public function read(){
 		$this->_getDAO(false);
 		$res = $this->dao->getList($this->filter);
+		$this->keywords = array();
 		while ($out = $res->fetchArray()) {
 			$this->keywords[] = new UsersKeyword($out[UsersKeyword::FIELD_KEYWORD_ID], $out);
 		}		

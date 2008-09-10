@@ -69,6 +69,8 @@ class UsersAuthorization implements Singleton,Output {
 	 */
 	private $user = null; 
 	
+	private $su = array();
+	
 	/**
 	 * @var DAO_UserAuthorization
 	 */
@@ -101,7 +103,7 @@ class UsersAuthorization implements Singleton,Output {
 	 	} */
 	}
 	public function getUID(){
-		return $this->decorator->getUID();	
+		return $this->user->getUserID();	
 	}
 	
 	/**
@@ -173,13 +175,33 @@ class UsersAuthorization implements Singleton,Output {
 			return false;	
 		}
 	}
+	
+	public function su(User $user){
+		$this->su[] = $this->user;
+		$this->user = $user;
+		$this->reloadPermissions();		
+	}
+	
+	public function isSu(){
+		if(sizeof($this->su) > 0){
+			return true;
+		} else {
+			return false;
+		}
+	}
+	
 	public function logout(){
-		$this->user = null;
-		$this->ip = null;
-		$this->auth = false;
-		$this->permissions = array();
-		$session = SessionHandler::getInstance();
-		$session->remove(__CLASS__);
+		if(sizeof($this->su) > 0){
+			$this->user = array_pop($this->su);
+			$this->reloadPermissions();
+		} else {
+			$this->user = null;
+			$this->ip = null;
+			$this->auth = false;
+			$this->permissions = array();
+			$session = SessionHandler::getInstance();
+			$session->remove(__CLASS__);
+		}
 	}
 	public function store(){
 		if(!is_null($this->user)){
