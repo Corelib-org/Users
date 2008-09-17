@@ -133,7 +133,7 @@ class UsersAuthorization implements Singleton,Output {
 		*/
 		$res = $this->dao->getUserPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
-			$this->permissions[$out[UsersPermission::FIELD_ID]] = $out[UsersPermission::FIELD_IDENT];
+			$this->permissions[$out[UserPermission::FIELD_ID]] = $out[UserPermission::FIELD_IDENT];
 		}
 		/*
  		$res = $this->dao->getUserRolesPermissions($this->user->getID());
