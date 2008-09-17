@@ -20,7 +20,7 @@ class UsersAuthorizationConfirmEvent implements EventTypeHandler,Observer  {
 	}
 }
 
-class UsersAuthorizationStoreEvent implements EventTypeHandler,Observer  {
+class UsersAuthorizationStoreEvent implements EventTypeHandler,Observer {
 	private $subject = null;
 	
 	public function getEventType(){
@@ -35,7 +35,7 @@ class UsersAuthorizationStoreEvent implements EventTypeHandler,Observer  {
 	}
 }
 
-class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer  {
+class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer {
 	private $subject = null;
 	
 	public function getEventType(){
