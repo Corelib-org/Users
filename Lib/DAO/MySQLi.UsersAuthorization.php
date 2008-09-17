@@ -13,23 +13,13 @@ class MySQLi_UsersAuthorization extends DatabaseDAO implements Singleton,DAO_Use
 	}
 	
 	public function getUserPermissions($userid){
-		$res = false;
-		try {
-			if(is_integer($userid)){
-				$query = 'SELECT pk_users_permissions, permission_ident
-				          FROM tbl_users_has_permissions
-				          INNER JOIN tbl_users_permissions ON fk_users_permissions=pk_users_permissions
-				          WHERE fk_users=\''.$userid.'\' AND (expire > NOW() OR expire IS NULL)';
-				$res = $this->slaveQuery(new MySQLiQuery($query));
-			} else {
-				throw new BaseException('$userid not specified, or incorrect datatype');
-			}
-		} catch (Exception $e){
-			echo $e;
-		}
-		return $res;
+		$query = 'SELECT pk_users_permissions, ident
+		          FROM tbl_users_has_permissions
+		          INNER JOIN tbl_users_permissions ON fk_users_permissions=pk_users_permissions
+		          WHERE fk_users=\''.$userid.'\' AND (expire > NOW() OR expire IS NULL)';
+		return $this->slaveQuery(new MySQLiQuery($query));
 	}
-	
+	/*
 	public function getUserReversePermissions($userid){
 		$res = false;
 		try {
@@ -95,5 +85,6 @@ class MySQLi_UsersAuthorization extends DatabaseDAO implements Singleton,DAO_Use
 		}
 		return $res;		
 	}
+	*/
 }
 ?>

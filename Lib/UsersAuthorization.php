@@ -1,9 +1,9 @@
 <?php
 interface DAO_UserAuthorization {
 	public function getUserPermissions($userid);
-	public function getUserReversePermissions($userid);
+/*	public function getUserReversePermissions($userid);
 	public function getUserRolesPermissions($userid, $roleid=null);
-	public function getUserGroupsPermissions($userid, $groupid=null);
+	public function getUserGroupsPermissions($userid, $groupid=null); */
 }
 
 class UsersAuthorizationConfirmEvent implements EventTypeHandler,Observer  {
@@ -55,8 +55,6 @@ class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer  {
 		}
 	}
 }
-
-
 
 class UsersAuthorization implements Singleton,Output {
 	private static $instance = null;
@@ -126,15 +124,18 @@ class UsersAuthorization implements Singleton,Output {
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO(__CLASS__);
 		}
+		/*
 		$this->permissions = array('LOGGED_IN');
 		$res = $this->dao->getUserGroupsPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
 		}
+		*/
 		$res = $this->dao->getUserPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
-			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
+			$this->permissions[$out[UsersPermission::FIELD_ID]] = $out[UsersPermission::FIELD_IDENT];
 		}
+		/*
  		$res = $this->dao->getUserRolesPermissions($this->user->getID());
 		while($out = $res->fetchArray()){
 			$this->permissions[$out['pk_users_permissions']] = $out['permission_ident'];
@@ -145,6 +146,7 @@ class UsersAuthorization implements Singleton,Output {
 				unset($this->permissions[$out['pk_users_permissions']]);
 			}
 		}
+		*/
 	}
 	
 	public function reload(){

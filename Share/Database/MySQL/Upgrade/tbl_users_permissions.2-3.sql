@@ -1,0 +1,2 @@
+ALTER TABLE `tbl_users_permissions` CHANGE `permission_ident` `ident` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_bin NOT NULL, CHANGE `permission_name` `title` VARCHAR( 255 ) CHARACTER SET utf8 COLLATE utf8_bin NULL DEFAULT NULL;
+ALTER TABLE `tbl_users_permissions`  COMMENT = 'Revision: 3';
