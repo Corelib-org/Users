@@ -36,6 +36,8 @@ class UserPermissionList extends UserComponent implements Output  {
 	
 	const FIELD_USER_FILTER = 'user_filter';
 	const FIELD_USER_STRICT_FILTER = 'user_strict_filter';
+	const FIELD_EXPIRE_TIMESTAMP = 'expire_timestamp';
+	const FIELD_COMMENT = 'comment';
 	
 	public function __construct(){
 		$this->order = new DatabaseListHelperOrder();
@@ -123,6 +125,12 @@ class UserPermissionList extends UserComponent implements Output  {
 			$item = $list->appendChild($item->getXML($xml));
 			if(isset($out[User::FIELD_ID])){
 				$item->setAttribute('selected', 'true');
+			}
+			if(isset($out[self::FIELD_EXPIRE_TIMESTAMP])){
+				$item->setAttribute('expire_timestamp', $out[self::FIELD_EXPIRE_TIMESTAMP]);
+			}
+			if(isset($out[self::FIELD_COMMENT])){
+				$item->appendChild($xml->createTextNode($out[self::FIELD_COMMENT]));
 			}
 		}
 		return $list;

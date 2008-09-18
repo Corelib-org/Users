@@ -136,9 +136,10 @@ class UserPermission extends UserComponent implements Output {
 	}
 
 	public function getXML(DOMDocument $xml){
-		$permission = $xml->createElement('permission', $this->title);
+		$permission = $xml->createElement('permission');
 		$permission->setAttribute('id', $this->id);
 		$permission->setAttribute('ident', $this->ident);
+		$permission->setAttribute('title', $this->title);
 		return $permission;
 	}
 	public function &getArray(){ 

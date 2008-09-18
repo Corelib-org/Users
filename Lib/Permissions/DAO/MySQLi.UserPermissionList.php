@@ -23,7 +23,7 @@ class MySQLi_UserPermissionList extends DatabaseDAO implements Singleton,DAO_Use
 		}
 	}
 	public function grantPermission($userid, $permission, $comment=null, $expire=null){
-		$query = MySQLiTools::makeReplaceStatement('tbl_users_has_permissions', array('fk_users','fk_users_permissions','comment','expire'=>'FROM_UNIXTIME(?)'));
+		$query = MySQLiTools::makeReplaceStatement('tbl_users_has_permissions', array('fk_users','fk_users_permissions','comment','exoire_timestamp'=>'FROM_UNIXTIME(?)'));
 		$query = $this->masterQuery(new MySQLiQueryStatement($query, $userid, $permission, $comment, $expire));
 		if($query->getAffectedRows() > 0){
 			return true;
@@ -87,7 +87,7 @@ class MySQLi_UserPermissionList extends DatabaseDAO implements Singleton,DAO_Use
 				} else {
 					$join .= ' LEFT ';
 				}
-				$columns .= ', fk_users AS '.User::FIELD_ID.' ';
+				$columns .= ', fk_users AS '.User::FIELD_ID.', UNIX_TIMESTAMP(expire_timestamp) AS expire_timestamp, comment ';
 				$join .= ' JOIN tbl_users_has_permissions ON pk_users_permissions=fk_users_permissions AND fk_users=\''.$userid.'\'';
 			}
 		}
