@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<extension id="29a0966c-85b8-11dd-8317-001cc43af296" enabled="true">
+	<setup>
+		<name>Corelib - Users</name>
+		<description>Extension controlling user functions</description>
+	</setup>
+	<pages>
+
+	</pages>	
+	<extendprops id="bace91bc-9132-11db-9dfa-0003ffb1de2c">
+		<database>
+			<engine id="MySQLi">
+				<scripts>{CORELIB}/Users/Share/Database/MySQL</scripts>
+				<scripts>{ZORNIG_BACKOFFICE}/lib/modules/Pages/lib/class/Pages/Share/Database/MySQLi</scripts>
+				<scripts>{ZORNIG_BACKOFFICE}/lib/modules/Pages/lib/class/Templates/Share/Database/MySQLi</scripts>
+			</engine>
+		</database>
+	</extendprops>	
+</extension>
