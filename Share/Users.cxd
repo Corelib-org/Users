@@ -11,8 +11,6 @@
 		<database>
 			<engine id="MySQLi">
 				<scripts>{CORELIB}/Users/Share/Database/MySQL</scripts>
-				<scripts>{ZORNIG_BACKOFFICE}/lib/modules/Pages/lib/class/Pages/Share/Database/MySQLi</scripts>
-				<scripts>{ZORNIG_BACKOFFICE}/lib/modules/Pages/lib/class/Templates/Share/Database/MySQLi</scripts>
 			</engine>
 		</database>
 	</extendprops>	
