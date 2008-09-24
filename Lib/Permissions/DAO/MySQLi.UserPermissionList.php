@@ -23,7 +23,7 @@ class MySQLi_UserPermissionList extends DatabaseDAO implements Singleton,DAO_Use
 		}
 	}
 	public function grantPermission($userid, $permission, $comment=null, $expire=null){
-		$query = MySQLiTools::makeReplaceStatement('tbl_users_has_permissions', array('fk_users','fk_users_permissions','comment','exoire_timestamp'=>'FROM_UNIXTIME(?)'));
+		$query = MySQLiTools::makeReplaceStatement('tbl_users_has_permissions', array('fk_users','fk_users_permissions','comment','expire_timestamp'=>'FROM_UNIXTIME(?)'));
 		$query = $this->masterQuery(new MySQLiQueryStatement($query, $userid, $permission, $comment, $expire));
 		if($query->getAffectedRows() > 0){
 			return true;
