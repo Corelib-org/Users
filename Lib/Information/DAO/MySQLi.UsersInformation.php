@@ -64,24 +64,37 @@ class MySQLi_UsersInformation extends DatabaseDAO implements Singleton,DAO_Users
 		
 		$query = 'SELECT '.UsersInformation::FIELD_VALUE.'
 		          FROM tbl_users_has_information
-		          WHERE '.UsersInformation::FIELD_USER_ID.'=\''.$userid.'\' 
-		            AND '.UsersInformation::FIELD_INFOMATION_ID.'=\''.$infoid.'\'';
+		          WHERE '.UsersInformation::FIELD_USER_ID.'=\''.mysql_escape_string($userid).'\' 
+		            AND '.UsersInformation::FIELD_INFOMATION_ID.'=\''.mysql_escape_string($infoid).'\'';
 		$query = $this->masterQuery(new MySQLiQuery($query));
 		
 		if($query->getNumRows() > 0){
+			$query = MySQLiTools::makeUpdateStatement('tbl_users_has_information', 
+			                                          array(UsersInformation::FIELD_VALUE),
+			                                          'WHERE `'.UsersInformation::FIELD_USER_ID.'`=?
+			                                             AND `'.UsersInformation::FIELD_INFOMATION_ID.'`=?');
+			                                          /*
 			$query = 'UPDATE tbl_users_has_information
 			          SET '.UsersInformation::FIELD_VALUE.'=\''.$value.'\'
 			          WHERE '.UsersInformation::FIELD_USER_ID.'=\''.$userid.'\' 
 			            AND '.UsersInformation::FIELD_INFOMATION_ID.'=\''.$infoid.'\'';
+*/
 		} else {
+			/*
 			$query = 'INSERT INTO tbl_users_has_information ('.UsersInformation::FIELD_USER_ID.', 
 			                                                 '.UsersInformation::FIELD_INFOMATION_ID.', 
 			                                                 '.UsersInformation::FIELD_VALUE.')
 			          VALUES(\''.$userid.'\',
 			                 \''.$infoid.'\',
 			                 '.MySQLiTools::parseNullValue($value).')';
+			*/
+			$query = MySQLiTools::makeInsertStatement('tbl_users_has_information', 
+			                                          array(UsersInformation::FIELD_VALUE,
+			                                                UsersInformation::FIELD_USER_ID,
+			                                                UsersInformation::FIELD_INFOMATION_ID));
 		}
-		$query = $this->masterQuery(new MySQLiQuery($query));
+		$query = $this->masterQuery(new MySQLiQueryStatement($query, $value, $userid, $infoid));
+		// $query = $this->masterQuery(new MySQLiQuery($query));
 		if($query->getAffectedRows() > 0){
 			$this->commit();
 			return true;
@@ -94,8 +107,8 @@ class MySQLi_UsersInformation extends DatabaseDAO implements Singleton,DAO_Users
 	public function read($userid, $infoid){
 		$query = 'SELECT '.MySQLi_UsersInformation::SELECT_COLUMNS.'
 		          FROM tbl_users_has_information
-		          WHERE '.UsersInformation::FIELD_USER_ID.'=\''.$userid.'\' 
-		            AND '.UsersInformation::FIELD_INFOMATION_ID.'=\''.$infoid.'\'';
+		          WHERE '.UsersInformation::FIELD_USER_ID.'=\''.mysql_escape_string($userid).'\' 
+		            AND '.UsersInformation::FIELD_INFOMATION_ID.'=\''.mysql_escape_string($infoid).'\'';
 		$query = $this->slaveQuery(new MySQLiQuery($query));
 		
 		return $query->fetchArray();

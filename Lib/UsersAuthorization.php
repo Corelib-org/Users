@@ -157,6 +157,9 @@ class UsersAuthorization implements Singleton,Output {
 		return $this->auth;
 	}
 	public function login(User $user, $password, $hash=false){
+		if($this->isAuthed()){
+			$this->logout();
+		}
 		$this->user = $user;
 		
 		if(!$hash){
