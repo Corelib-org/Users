@@ -8,7 +8,7 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 	                        email, 
 	                        IF(activated=\'TRUE\', true, false) as activated, 
 	                        activation_string, 
-	                        UNIX_TIMESTAMP(create_timestamp) AS create_timestamp, 
+	                        UNIX_TIMESTAMP(`tbl_users`.`create_timestamp`) AS create_timestamp, 
 	                        UNIX_TIMESTAMP(last_timestamp) AS last_timestamp'; 
 	
 	/**
