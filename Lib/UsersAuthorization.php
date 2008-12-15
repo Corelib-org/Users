@@ -101,7 +101,11 @@ class UsersAuthorization implements Singleton,Output {
 	 	} */
 	}
 	public function getUID(){
-		return $this->user->getUserID();	
+		if($this->isAuthed()){
+			return $this->user->getUserID();
+		} else {
+			return false;
+		}	
 	}
 	
 	/**
@@ -220,10 +224,12 @@ class UsersAuthorization implements Singleton,Output {
 		}	
 	}
 	public function checkPermissions($item1=null, $item2=null, $item3=null){
-		$array = func_get_args();
-		while(list($key, $val) = each($array)){
-			if(array_search($val, $this->permissions)){
-				return true;
+		if($this->isAuthed()){
+			$array = func_get_args();
+			while(list($key, $val) = each($array)){
+				if(array_search($val, $this->permissions)){
+					return true;
+				}
 			}
 		}
 		return false;
