@@ -87,6 +87,14 @@ class UserSettings implements Singleton,Output {
 		}
 	}
 	
+	public function delete($ident){
+		if(isset($this->settings[$ident])){
+			$this->settings[$ident]->delete();
+			unset($this->settings[$ident]);
+		}
+		return true;
+	}
+	
 	public function get($ident, $default=null){
 		if(isset($this->settings[$ident])){
 			return $this->settings[$ident]->getValue();
