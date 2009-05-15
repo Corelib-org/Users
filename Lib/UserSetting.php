@@ -297,7 +297,7 @@ class UserSetting implements Output {
 	 * @return boolean return true on success, else return false
 	 */
 	public function delete(){
-		return $this->dao->delete($this->user->getID(), $this->ident->getID());
+		return $this->dao->delete($this->user->getID(), $this->ident);
 	}
 	
 	/**
