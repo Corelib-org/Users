@@ -120,7 +120,6 @@ class UsersList implements Output  {
 			$this->setOffset($this->limit * ($this->paging_page - 1));
 			$users->appendChild(XMLTools::makePagerXML($xml, $count, $this->limit, $this->paging_page));
 		}		
-		
 		$res = $this->dao->getList($this->filter, $this->order, $this->offset, $this->limit);
 		while ($out = $res->fetchArray()) {
 			$user = new User($out[User::FIELD_ID], $out);
