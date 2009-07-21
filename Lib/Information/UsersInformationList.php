@@ -15,6 +15,12 @@ class UsersInformationList extends UserComponent implements Output  {
 	 */
 	private $dao = null;
 	
+	/**
+	 * @var Converter
+	 */
+	private $value_converter = null;
+	
+	
 	public function __construct($item=null /*, [$items...] */){
 		$this->filter = new DatabaseListHelperFilter();
 		$items = func_get_args();
@@ -28,12 +34,19 @@ class UsersInformationList extends UserComponent implements Output  {
 		return parent::setParentComponent($component);
 	}
 		
+	public function setValueConverter(Converter $converter){
+		$this->value_converter = $converter;
+	}
+	
 	public function getXML(DOMDocument $xml){
 		$this->_getDAO();
 		$list = $xml->createElement('informationlist');
 		$res = $this->dao->getList($this->filter);
 		while ($out = $res->fetchArray()) {
 			$info = new UsersInformation($out[UsersInformation::FIELD_INFOMATION_ID], $out);
+			if(!is_null($this->value_converter)){
+				$info->setValueConverter($this->value_converter);
+			}			
 			$list->appendChild($info->getXML($xml));
 		}
 		return $list;

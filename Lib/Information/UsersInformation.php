@@ -58,6 +58,11 @@ class UsersInformation extends UserComponent implements Output {
 	
 	private $dao = null;
 	
+	/**
+	 * @var Converter
+	 */
+	private $value_converter = null;	
+	
 	const FIELD_USER_ID = 'fk_users';
 	const FIELD_INFOMATION_ID = 'fk_information';
 	const FIELD_VALUE = 'value';
@@ -101,6 +106,11 @@ class UsersInformation extends UserComponent implements Output {
 	public function hasItem(InformationItem $item){
 		return $this->information->hasItem($item);
 	}
+	
+	public function setValueConverter(Converter $converter){
+		$this->value_converter = $converter;
+	}	
+	
 	
 	public function getValue(){
 		return $this->value;
@@ -148,7 +158,11 @@ class UsersInformation extends UserComponent implements Output {
 	public function getXML(DOMDocument $xml){
 		$info = $this->information->getXML($xml);
 		if(!is_null($this->value)){
-			$info->appendChild($xml->createElement('value', $this->value));
+			if(!is_null($this->value_converter)){
+				$info->appendChild($xml->createElement('value', $this->value_converter->convert($this->value)));
+			} else {
+				$info->appendChild($xml->createElement('value', $this->value));
+			}
 		}
 		return $info;
 	}
