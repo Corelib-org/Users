@@ -1,10 +1,10 @@
 <?php
 class UserSettingsStoreEvent implements EventTypeHandler,Observer {
 	private $subject = null;
-	
+
 	public function getEventType(){
-		return 'EventRequestEnd';	
-	}	
+		return 'EventRequestEnd';
+	}
 	public function register(ObserverSubject $subject){
 		$this->subject = $subject;
 	}
@@ -16,10 +16,10 @@ class UserSettingsStoreEvent implements EventTypeHandler,Observer {
 
 class UserSettingsPutSettingsXML implements EventTypeHandler,Observer {
 	private $subject = null;
-	
+
 	public function getEventType(){
-		return 'EventApplyDefaultSettings';	
-	}	
+		return 'EventApplyDefaultSettings';
+	}
 	public function register(ObserverSubject $subject){
 		$this->subject = $subject;
 	}
@@ -33,14 +33,14 @@ class UserSettingsPutSettingsXML implements EventTypeHandler,Observer {
 
 class UserSettings implements Singleton,Output {
 	private static $instance = null;
-	
+
 	private $settings = array();
 	private $changed = array();
 	/**
 	 * @var User
 	 */
-	private $user = null; 
-	
+	private $user = null;
+
 	/**
 	 *	@return UserSettings
 	 */
@@ -53,55 +53,56 @@ class UserSettings implements Singleton,Output {
 				self::$instance = new UserSettings();
 			}
 		}
-		return self::$instance;	
+		return self::$instance;
 	}
 	private function __construct(){
 		$this->user = UsersAuthorization::getInstance()->getUser();
 	}
 
 	public function __wakeup(){
-		if($this->user->getUserID() != UsersAuthorization::getInstance()->getUID()){
+		if($this->user !== false && $this->user->getUserID() != UsersAuthorization::getInstance()->getUID()){
 			$this->reset();
 		}
 		$this->user = UsersAuthorization::getInstance()->getUser();
 	}
-	
+
 	public function reset(){
 		$session = SessionHandler::getInstance();
 		$session->remove(__CLASS__);
 		$this->settings = array();
-		$this->changed = array();		
+		$this->changed = array();
 	}
 
 	public function store(){
 		if($this->user){
 			$this->user->removeComponents();
-			
+
 			foreach ($this->changed as $change){
 				$change->commit();
 			}
-			$this->changed = array();	
-			
-			$session = SessionHandler::getInstance();
-			$session->set(__CLASS__, serialize($this));
+			$this->changed = array();
 		}
+		$session = SessionHandler::getInstance();
+		$session->set(__CLASS__, serialize($this));
 	}
-	
+
 	public function delete($ident){
 		if(isset($this->settings[$ident])){
-			$this->settings[$ident]->delete();
+			if($this->user){
+				$this->settings[$ident]->delete();
+			}
 			unset($this->settings[$ident]);
 		}
 		return true;
 	}
-	
+
 	public function get($ident, $default=null){
 		if(isset($this->settings[$ident])){
 			return $this->settings[$ident]->getValue();
 		} else if($this->user) {
 			$this->settings[$ident] = new UserSetting($this->user->getID(), $ident);
 			if(!$this->settings[$ident]->read()){
-				$this->settings[$ident]->setValue($default);	
+				$this->settings[$ident]->setValue($default);
 			}
 			return $this->settings[$ident]->getValue();
 		} else {
@@ -111,9 +112,13 @@ class UserSettings implements Singleton,Output {
 
 	public function set($ident, $value){
 		if(!isset($this->settings[$ident]) || $this->settings[$ident]->getValue() != $value){
-			$this->settings[$ident] = new UserSetting($this->user->getID(), $ident);
+			if($this->user){
+				$this->settings[$ident] = new UserSetting($this->user->getID(), $ident);
+				$this->changed[$ident] = $this->settings[$ident];
+			} else {
+				$this->settings[$ident] = new UserSetting(null, $ident);
+			}
 			$this->settings[$ident]->setValue($value);
-			$this->changed[$ident] = $this->settings[$ident];
 		}
 		return true;
 	}
