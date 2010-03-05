@@ -26,7 +26,7 @@ class UsersAuthorizationPutSettingsXML extends EventAction {
 	public function update(Event $event){
 		$auth = UsersAuthorization::getInstance();
 		if($auth->isAuthed()){
-			$page = $update->getPage();
+			$page = $event->getPage();
 			$page->addSettings($auth);
 		}
 	}
