@@ -6,48 +6,24 @@ interface DAO_UserAuthorization {
 	public function getUserGroupsPermissions($userid, $groupid=null); */
 }
 
-class UsersAuthorizationConfirmEvent implements EventTypeHandler,Observer  {
-	private $subject = null;
-
-	public function getEventType(){
-		return 'EventRequestStart';	
-	}	
-	public function register(ObserverSubject $subject){
-		$this->subject = $subject;
-	}
-	public function update($update){
+class UsersAuthorizationConfirmEvent extends EventAction  {
+	public function update(Event $event){
 		UsersAuthorization::getInstance();
 	}
 }
 
-class UsersAuthorizationStoreEvent implements EventTypeHandler,Observer {
-	private $subject = null;
-	
-	public function getEventType(){
-		return 'EventRequestEnd';	
-	}	
-	public function register(ObserverSubject $subject){
-		$this->subject = $subject;
-	}
-	public function update($update){
+class UsersAuthorizationStoreEvent extends EventAction {
+	public function update(Event $event){
 		$auth = UsersAuthorization::getInstance();
 		$auth->store();
 	}
 }
 
-class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer {
-	private $subject = null;
-	
-	public function getEventType(){
-		return 'EventApplyDefaultSettings';	
-	}	
-	public function register(ObserverSubject $subject){
-		$this->subject = $subject;
-	}
+class UsersAuthorizationPutSettingsXML extends EventAction {
 	/**
 	 * @param EventApplyDefaultSettings $update
 	 */
-	public function update($update){
+	public function update(Event $event){
 		$auth = UsersAuthorization::getInstance();
 		if($auth->isAuthed()){
 			$page = $update->getPage();
@@ -58,22 +34,22 @@ class UsersAuthorizationPutSettingsXML implements EventTypeHandler,Observer {
 
 class UsersAuthorization implements Singleton,Output {
 	private static $instance = null;
-	
+
 	private $auth = false;
 	private $ip = null;
 	private $permissions = array();
 	/**
 	 * @var User
 	 */
-	private $user = null; 
-	
+	private $user = null;
+
 	private $su = array();
-	
+
 	/**
 	 * @var DAO_UserAuthorization
 	 */
 	protected $dao = null;
-	
+
 	/**
 	 *	@return UsersAuthorization
 	 */
@@ -86,7 +62,7 @@ class UsersAuthorization implements Singleton,Output {
 				self::$instance = new UsersAuthorization();
 			}
 		}
-		return self::$instance;	
+		return self::$instance;
 	}
 	private function __construct(){
 		$this->confirm();
@@ -97,7 +73,7 @@ class UsersAuthorization implements Singleton,Output {
 	}
 	public function confirm(){
 /*		if($_SERVER['REMOTE_ADDR'] != $this->ip){
-			$this->logout();	
+			$this->logout();
 	 	} */
 	}
 	public function getUID(){
@@ -105,9 +81,9 @@ class UsersAuthorization implements Singleton,Output {
 			return $this->user->getUserID();
 		} else {
 			return false;
-		}	
+		}
 	}
-	
+
 	/**
 	 * Returns current active User object
 	 *
@@ -136,6 +112,8 @@ class UsersAuthorization implements Singleton,Output {
 		}
 		*/
 		$res = $this->dao->getUserPermissions($this->user->getID());
+
+		$this->permissions = array();
 		while($out = $res->fetchArray()){
 			$this->permissions[$out[UserPermission::FIELD_ID]] = $out[UserPermission::FIELD_IDENT];
 		}
@@ -152,11 +130,11 @@ class UsersAuthorization implements Singleton,Output {
 		}
 		*/
 	}
-	
+
 	public function reload(){
 		$this->user->read();
 	}
-	
+
 	public function isAuthed(){
 		return $this->auth;
 	}
@@ -165,11 +143,11 @@ class UsersAuthorization implements Singleton,Output {
 			$this->logout();
 		}
 		$this->user = $user;
-		
+
 		if(!$hash){
 			$password = sha1($password);
 		}
-					
+
 		if($password == $this->user->getPassword()){
 			$this->auth = true;
 			$this->ip = $_SERVER['REMOTE_ADDR'];
@@ -178,19 +156,19 @@ class UsersAuthorization implements Singleton,Output {
 			$this->store();
 			$this->user->setLastTimestamp();
 			$this->user->commit();
-			
+
 			return true;
 		} else {
-			return false;	
+			return false;
 		}
 	}
-	
+
 	public function su(User $user){
 		$this->su[] = $this->user;
 		$this->user = $user;
-		$this->reloadPermissions();		
+		$this->reloadPermissions();
 	}
-	
+
 	public function isSu(){
 		if(sizeof($this->su) > 0){
 			return true;
@@ -198,7 +176,7 @@ class UsersAuthorization implements Singleton,Output {
 			return false;
 		}
 	}
-	
+
 	public function logout(){
 		if(sizeof($this->su) > 0){
 			$this->user = array_pop($this->su);
@@ -216,12 +194,12 @@ class UsersAuthorization implements Singleton,Output {
 		if(!is_null($this->user)){
 			$this->user->removeComponents();
 		}
-		
+
 		if($this->isAuthed()){
 			$this->dao = null;
 			$session = SessionHandler::getInstance();
 			$session->set(__CLASS__, serialize($this));
-		}	
+		}
 	}
 	public function checkPermissions($item1=null, $item2=null, $item3=null){
 		if($this->isAuthed()){
@@ -244,18 +222,10 @@ class UsersAuthorization implements Singleton,Output {
 		}
 		return $DOMUser;
 	}
-	public function &getArray(){
-		$user = $this->decorator->getArray();
-		$user['user']['permissions'] = array();
-		while(list($key, $val) = each($this->permissions)){
-			$user['user']['permissions'][$key] = $val;
-		}
-		return $user;		
-	}
 }
 
 $eventHandler = EventHandler::getInstance();
-$eventHandler->registerObserver(new UsersAuthorizationConfirmEvent());
-$eventHandler->registerObserver(new UsersAuthorizationStoreEvent());
-$eventHandler->registerObserver(new UsersAuthorizationPutSettingsXML());
+$eventHandler->register(new UsersAuthorizationConfirmEvent(), 'EventRequestStart');
+$eventHandler->register(new UsersAuthorizationStoreEvent(), 'EventRequestEnd');
+$eventHandler->register(new UsersAuthorizationPutSettingsXML(), 'EventApplyDefaultSettings');
 ?>
