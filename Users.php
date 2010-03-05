@@ -17,6 +17,9 @@ abstract class UserModifyEvent implements Event {
 		return $this->user->getID();
 	}
 	
+	/**
+	 * @return User
+	 */
 	public function getObj(){
 		return $this->user;
 	}
@@ -25,6 +28,9 @@ class UserModifyBeforeCommit extends UserModifyEvent {
 	
 }
 class UserModifyAfterCommit extends UserModifyEvent {
+	
+}
+class UserModifyAfterCreate extends UserModifyEvent {
 	
 }
 class UserModifyBeforeDelete extends UserModifyEvent {
@@ -281,7 +287,7 @@ class User extends UserComponent {
 			if(is_null($this->username) || is_null($this->email)){
 				throw new BaseException('unable to modify user, username or email is null', E_USER_ERROR);		
 			} else {
-				$event->triggerEvent(new UserModifyBeforeCommit($this));
+				$event->trigger(new UserModifyBeforeCommit($this));
 				if(is_null($this->id)){
 					$r = $this->_create();
 				} else {
@@ -291,7 +297,7 @@ class User extends UserComponent {
 				
 				if($r){
 					parent::commit($recursive);
-					$event->triggerEvent(new UserModifyAfterCommit($this));
+					$event->trigger(new UserModifyAfterCommit($this));
 					return $r;
 				}
 			}
@@ -303,9 +309,9 @@ class User extends UserComponent {
 	}
 	public function delete($permanent=false){
 		$event = EventHandler::getInstance();
-		$event->triggerEvent(new UserModifyBeforeDelete($this, $permanent));
+		$event->trigger(new UserModifyBeforeDelete($this, $permanent));
 		if($this->dao->delete($this->id, $permanent)){
-			$event->triggerEvent(new UserModifyAfterDelete($this, $permanent));
+			$event->trigger(new UserModifyAfterDelete($this, $permanent));
 			return true;	
 		} else {
 			return false;
@@ -413,6 +419,8 @@ class User extends UserComponent {
 		}
 		if($this->id = $this->dao->create($this->username, $this->email, $this->password, $this->activated, $this->activation_string)){
 			$this->_read();
+			$event = EventHandler::getInstance();
+			$event->trigger(new UserModifyAfterCreate($this));
 			return true;
 		} else {
 			return false;
