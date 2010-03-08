@@ -6,16 +6,10 @@
 		<table class="list">
 			<thead>
 				<th class="text username">
-					username
+					Username
 				</th>
 				<th class="text email">
-					email
-				</th>
-				<th class="boolean activated">
-					activated
-				</th>
-				<th class="boolean deleted">
-					deleted
+					E-mail
 				</th>
 				<th class="date create-timestamp">
 					create-timestamp
@@ -29,16 +23,23 @@
 			</thead>
 			<tfoot>
 				<tr>
-					<td class="pager" colspan="2">
+					<td class="pager" colspan="3">
 						<xsl:apply-templates select="pager" />
 					</td>
-					<td class="count" colspan="5">
+					<td class="count" colspan="2">
 						<xsl:value-of select="concat(@count, ' user')" />
 					</td>
 				</tr>
 			</tfoot>
 			<tbody>
-				<xsl:apply-templates select="user" mode="xhtml-list" />
+				<xsl:choose>
+					<xsl:when test="count(user) &gt; 0">
+						<xsl:apply-templates select="user" mode="xhtml-list" />
+					</xsl:when>
+					<xsl:otherwise>
+						<tr><td colspan="5" style="text-align: center"><br/>No users found.<br/><br/></td></tr>					
+					</xsl:otherwise>
+				</xsl:choose>
 			</tbody>
 		</table>
 	</xsl:template>
@@ -49,12 +50,6 @@
 			</td>
 			<td class="text email">
 				<xsl:value-of select="@email" />
-			</td>
-			<td class="boolean activated">
-				<xsl:value-of select="@activated" />
-			</td>
-			<td class="boolean deleted">
-				<xsl:value-of select="@deleted" />
 			</td>
 			<td class="date create-timestamp">
 				<xsl:value-of select="@create-timestamp" />
@@ -109,7 +104,7 @@
 		</label>
 		<input type="text" name="username" class="text" id="user-edit-username" value="{$username}" />
 		<div class="fielddesc">
-		  <p>Valid characters are a-z and 0-9</p>
+		  <p>Valid characters are a-z and 0-9, the usernames are case insensitive.</p>
 		</div>
 	</xsl:template>
 	
@@ -135,7 +130,7 @@
 				</span>
 			</xsl:if>
 		</label>
-		<input type="password" name="confirm-password" id="user-edit-password" class="text"/>
+		<input type="password" name="password-confirm" id="user-edit-password" class="text"/>
 		<div class="fielddesc">
 		  <p>Retype the password to confirm it.</p>
 		</div>		
@@ -168,8 +163,27 @@
 			</xsl:if>
 		</label>
 		<span class="radio-container">
-			<input type="radio" name="activated" id="activated_active" value="true"/> <label for="activated_active"> Activated</label>
-			<input type="radio" name="activated" id="activated_inactive" value="false"/><label for="activated_inactive"> Inactive</label>
+			<xsl:element name="input">
+				<xsl:attribute name="type">radio</xsl:attribute>
+				<xsl:attribute name="name">activated</xsl:attribute>
+				<xsl:attribute name="id">activated_active</xsl:attribute>
+				<xsl:attribute name="value">true</xsl:attribute>
+				<xsl:if test="$activated = 'true'">
+					<xsl:attribute name="checked">true</xsl:attribute>
+				</xsl:if>
+			</xsl:element>
+			<label for="activated_active"> Activated</label>
+			
+			<xsl:element name="input">
+				<xsl:attribute name="type">radio</xsl:attribute>
+				<xsl:attribute name="name">activated</xsl:attribute>
+				<xsl:attribute name="id">activated_inactive</xsl:attribute>
+				<xsl:attribute name="value">false</xsl:attribute>
+				<xsl:if test="$activated != 'true'">
+					<xsl:attribute name="checked">true</xsl:attribute>
+				</xsl:if>
+			</xsl:element>
+			<label for="activated_inactive"> Inactive</label>
 		</span>
 		<div class="fielddesc">
 		  <p></p>
@@ -188,7 +202,7 @@
 		</label>
 		<input type="text" name="activation-string" id="user-edit-activation-string" value="{$activation-string}" />
 		<div class="fielddesc">
-		  <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam cursus. Sed metus massa, luctus vel, nonummy ut, blandit quis, magna.</p>
+		  <p></p>
 		</div>
 	</xsl:template>
 	
@@ -204,7 +218,7 @@
 		</label>
 		<input type="text" name="deleted" id="user-edit-deleted" value="{$deleted}" />
 		<div class="fielddesc">
-		  <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam cursus. Sed metus massa, luctus vel, nonummy ut, blandit quis, magna.</p>
+		  <p></p>
 		</div>
 	</xsl:template>
 	
@@ -220,12 +234,10 @@
 		</label>
 		<input type="text" name="last-timestamp" id="user-edit-last-timestamp" value="{$last-timestamp}" />
 		<div class="fielddesc">
-		  <p>Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Nam cursus. Sed metus massa, luctus vel, nonummy ut, blandit quis, magna.</p>
+		  <p></p>
 		</div>		
 	</xsl:template>
-	
 	<!-- Edit end -->
-
 
 	<!-- View -->
 	<xsl:template name="user-view-field">

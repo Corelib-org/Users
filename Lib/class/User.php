@@ -206,7 +206,7 @@ class User implements Output,CacheableOutput {
 	private $username = null;
 	private $password = null;
 	private $email = null;
-	private $activated = null;
+	private $activated = false;
 	private $activation_string = null;
 	private $deleted = null;
 	private $create_timestamp = null;
@@ -727,8 +727,10 @@ class User implements Output,CacheableOutput {
 	 * @internal
 	 */
 	private function _create(){
-		$this->activation_string = sha1($this->email.$this->username.$this->password);
-		$this->datahandler->set(self::FIELD_ACTIVATION_STRING, $this->activation_string);
+		if(!$this->getActivated()){
+			$this->activation_string = sha1($this->email.$this->username.$this->password);
+			$this->datahandler->set(self::FIELD_ACTIVATION_STRING, $this->activation_string);
+		}
 		if(is_null($this->password)){
 			$this->setPassword(PasswordGenerator::create(10));
 		}

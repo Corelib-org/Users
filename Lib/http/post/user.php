@@ -34,27 +34,27 @@
 /**
  * @ignore
  */
-class WebPage extends ZhostingPagePost {
+class WebPage extends ManagerPage {
 	/* Interface post methods */
 	public function edit($id){
 		$input = InputHandler::getInstance();
 		$user = new User($id);
-		if($this->_validateUserInput($user, 'username', 'password', 'email', 'activated', 'activation-string', 'deleted', 'last-timestamp')){
+		if($this->_validateUserInput($user, 'username', 'password', 'email', 'activated')){
 			$user->commit();
-			$this->post->setLocation('users/');
+			$this->post->setLocation('corelib/extensions/Users/');
 		} else {
-			$this->post->setLocation('users/'.$id.'/edit/?error', $input->serializePost());
+			$this->post->setLocation('corelib/extensions/Users/'.$id.'/edit/?error', $input->serializePost());
 		}
 	}
 
 	public function create(){
 		$input = InputHandler::getInstance();
 		$user = new User();
-		if($this->_validateUserInput($user, 'username', 'password', 'email', 'activated', 'activation-string', 'deleted', 'last-timestamp')){
+		if($this->_validateUserInput($user, 'username', 'password', 'email', 'activated')){
 			$user->commit();
-			$this->post->setLocation('users/');
+			$this->post->setLocation('corelib/extensions/Users/');
 		} else {
-			$this->post->setLocation('users/create/?error', $input->serializePost());
+			$this->post->setLocation('corelib/extensions/Users/create/?error', $input->serializePost());
 		}
 	}
 
@@ -67,28 +67,51 @@ class WebPage extends ZhostingPagePost {
 		array_shift($checkvalid);
 
 		/* Interface post validation */
-		$input->validatePost('username', new InputValidatorNotEmpty());
+		if($input->validatePost('username', new InputValidatorNotEmpty())){
+			if(!$user->isUsernameAvailable($input->getPost('username'))){
+				$input->unValidatePost('username');
+				$input->setPostErrorCode('username', 1);
+			}
+		}
+		if($input->validatePost('email', new InputValidatorEmail())){
+			if(!$user->isEmailAvailable($input->getPost('email'))){
+				$input->unValidatePost('email');
+				$input->setPostErrorCode('email', 1);
+			}
+		}
 		$input->validatePost('password', new InputValidatorNotEmpty());
-		$input->validatePost('email', new InputValidatorNotEmpty());
+		if($input->isValidPost('password')){
+			$input->validatePost('password-confirm', new InputValidatorEquals($input->getPost('password')));
+		} else if((!is_null($user->getID())) && $input->validatePost('password', new InputValidatorEmpty())){
+			$input->validatePost('password-confirm', new InputValidatorEmpty());
+		}
+
 		$input->validatePost('activated', new InputValidatorEnum('true','false'));
 		$input->validatePost('activation-string', new InputValidatorNotEmpty());
 		$input->validatePost('deleted', new InputValidatorEnum('true','false'));
 		$input->validatePost('last-timestamp', new InputValidatorRegex('//') /* Timestamp validation */);
 		/* Interface post validation end */
 
+		$input->addStripSerializePostVariable('password');
+		$input->addStripSerializePostVariable('password-confirm');
+
 		if($input->isValidPostVariables($checkvalid)){
 			/* Interface actions */
 			if($input->isValidPost('username')){
 				$user->setUsername($input->getPost('username'));
 			}
-			if($input->isValidPost('password')){
+			if($input->isValidPost('password') && $input->getPost('password') != ''){
 				$user->setPassword($input->getPost('password'));
 			}
 			if($input->isValidPost('email')){
 				$user->setEmail($input->getPost('email'));
 			}
 			if($input->isValidPost('activated')){
-				$user->setActivated($input->getPost('activated'));
+				if($input->getPost('activated') == 'true'){
+					$user->setActivated(true);
+				} else {
+					$user->setActivated(false);
+				}
 			}
 			if($input->isValidPost('activation-string')){
 				$user->setActivationString($input->getPost('activation-string'));
