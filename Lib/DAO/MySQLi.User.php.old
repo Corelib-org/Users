@@ -108,7 +108,6 @@ class MySQLi_User extends DatabaseDAO implements Singleton,DAO_User {
 			              activation_string='.$activation_string.',
 			              last_timestamp=IF('.$last_timestamp.' IS NULL, NULL, FROM_UNIXTIME('.$last_timestamp.'))
 			          WHERE pk_users=\''.$id.'\'';
-			
 			$query = $this->masterQuery(new MySQLiQuery($query));
 			
 			if($query->getAffectedRows() > 0){

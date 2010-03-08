@@ -1,22 +1,22 @@
-<?php
+ <?php
 abstract class UserModifyEvent implements Event {
 	/**
 	 * @var User
 	 */
 	protected $user;
-	
-	function __construct(UserComponent $user){		
+
+	function __construct(UserComponent $user){
 		$this->user = $user;
 	}
-	
+
 	public function getXML(DOMDocument $xml){
 		return $this->user->getXML($xml);
 	}
-	
+
 	public function getID(){
 		return $this->user->getID();
 	}
-	
+
 	/**
 	 * @return User
 	 */
@@ -25,28 +25,28 @@ abstract class UserModifyEvent implements Event {
 	}
 }
 class UserModifyBeforeCommit extends UserModifyEvent {
-	
+
 }
 class UserModifyAfterCommit extends UserModifyEvent {
-	
+
 }
 class UserModifyAfterCreate extends UserModifyEvent {
-	
+
 }
 class UserModifyBeforeDelete extends UserModifyEvent {
 	private $permanent = false;
-	
+
 	public function __construct(UserComponent $user, $permanent=false){
 		$this->permanent = $permanent;
 		parent::__construct($user);
 	}
-	
+
 	public function getIsPermanent(){
 		return $this->permanent;
 	}
 }
 class UserModifyAfterDelete extends UserModifyBeforeDelete {
-	
+
 }
 
 abstract class UserComponent extends Component implements Output  {
@@ -62,7 +62,7 @@ abstract class UserComponent extends Component implements Output  {
 			echo $e;
 		}
 	}
-	
+
 	public function getUserID(){
 		if(!is_null($this->parent)){
 			return $this->parent->getUserID();
@@ -70,20 +70,20 @@ abstract class UserComponent extends Component implements Output  {
 			return false;
 		}
 	}
-	
+
 	public function getPassword(){
 		return $this->parent->getPassword();
 	}
-	
+
 	public function addComponent(UserComponent $component){
 		return parent::addComponent($component);
 	}
-	
+
 	public function setParentComponent(UserComponent $component){
 		return parent::setParentComponent($component);
 	}
 }
-	
+
 interface DAO_User {
 	/**
 	 * @return on success, return new user id, else return false
@@ -92,7 +92,7 @@ interface DAO_User {
 	public function update($id, $username, $email, $password, $activated, $activation_string, $last_timestamp);
 	/**
 	 * Read userdata into user object
-	 * 
+	 *
 	 * @return array on success, else return false
 	 */
 	public function read($id);
@@ -100,7 +100,7 @@ interface DAO_User {
 	public function isUsernameAvailable($id, $username);
 	public function isEmailAvailable($id, $email);
 	public function getByUsername($username, $checkvalid=true);
-	public function getByEmail($email, $checkvalid=true);	
+	public function getByEmail($email, $checkvalid=true);
 }
 
 abstract class UserView extends View { }
@@ -113,16 +113,16 @@ class User extends UserComponent {
 	private $id = null;
 	private $username = null;
 	private $email = null;
-	private $password = null;	
-	
+	private $password = null;
+
 	private $activated = false;
-	private $activation_string = null;	
-	
+	private $activation_string = null;
+
 	private $last_timestamp = null;
 	private $create_timestamp = null;
 	private $username_converter = null;
 	private $email_converter = null;
-	
+
 	/**
 	 * @var Converter
 	 */
@@ -135,42 +135,42 @@ class User extends UserComponent {
 	 * @var DAO_User
 	 */
 	private $dao = null;
-	
+
 	const FIELD_ID = 'pk_users';
-	const FIELD_USERNAME = 'username';	
+	const FIELD_USERNAME = 'username';
 	const FIELD_PASSWORD = 'password';
 	const FIELD_EMAIL = 'email';
 	const FIELD_ACTIVATION_STRING = 'activation_string';
 	const FIELD_ACTIVATED = 'activated';
 	const FIELD_CREATE_TIMESTAMP = 'create_timestamp';
 	const FIELD_LAST_TIMESTAMP = 'last_timestamp';
-	
+
 	public function __construct($id = null, $array=array()){
 		$this->id = $id;
 		if(sizeof($array) > 0){
 			$this->_setFromArray($array);
 		}
-	}	
-	
+	}
+
 	public function getByUsername($username, $checkvalid=true){
 		$this->_getDAO(false);
 		$this->_setFromArray($this->dao->getByUsername($username, $checkvalid));
 		if(is_null($this->id)){
-			return false;	
+			return false;
 		} else {
-			return true;	
+			return true;
 		}
 	}
 	public function getByEmail($email, $checkvalid=true){
 		$this->_getDAO(false);
 		$this->_setFromArray($this->dao->getByEmail($email, $checkvalid));
 		if(is_null($this->id)){
-			return false;	
+			return false;
 		} else {
-			return true;	
+			return true;
 		}
-	}	
-	
+	}
+
 	public function getID(){
 		if(!is_null($this->id)){
 			return $this->id;
@@ -178,11 +178,11 @@ class User extends UserComponent {
 			return false;
 		}
 	}
-	
+
 	public function getUserID(){
 		return $this->getID();
 	}
-	
+
 	public function getPassword(){
 		if(!is_null($this->password)){
 			return $this->password;
@@ -229,7 +229,7 @@ class User extends UserComponent {
 	public function getActivationString(){
 		return $this->activation_string;
 	}
-		
+
 	public function setUsername($username){
 		$this->_getDAO();
 		if($this->dao->isUsernameAvailable($this->id, $username)){
@@ -247,13 +247,13 @@ class User extends UserComponent {
 		} else {
 			return false;
 		}
-	}	
+	}
 	public function setPassword($password){
 		$this->password = sha1($password);
 	}
 	public function setLastTimestamp($timestamp=null){
 		if(is_null($timestamp)){
-			$this->last_timestamp = time();	
+			$this->last_timestamp = time();
 		} else {
 			$this->last_timestamp = $timestamp;
 		}
@@ -262,7 +262,7 @@ class User extends UserComponent {
 		$this->activated = $active;
 		$this->activation_string = null;
 	}
-	
+
 	public function setLastTimestampConverter(Converter $converter){
 		$this->last_timestamp_converter = $converter;
 	}
@@ -275,17 +275,17 @@ class User extends UserComponent {
 	public function setEmailConverter(Converter $converter){
 		$this->email_converter = $converter;
 	}
-	
+
 	public function isActive(){
 		return $this->activated;
 	}
-	
+
 	public function commit($recursive=true){
 		$event = EventHandler::getInstance();
 		$this->_getDAO();
 		try {
 			if(is_null($this->username) || is_null($this->email)){
-				throw new BaseException('unable to modify user, username or email is null', E_USER_ERROR);		
+				throw new BaseException('unable to modify user, username or email is null', E_USER_ERROR);
 			} else {
 				$event->trigger(new UserModifyBeforeCommit($this));
 				if(is_null($this->id)){
@@ -294,7 +294,7 @@ class User extends UserComponent {
 					$this->_update();
 					$r = true;
 				}
-				
+
 				if($r){
 					parent::commit($recursive);
 					$event->trigger(new UserModifyAfterCommit($this));
@@ -312,7 +312,7 @@ class User extends UserComponent {
 		$event->trigger(new UserModifyBeforeDelete($this, $permanent));
 		if($this->dao->delete($this->id, $permanent)){
 			$event->trigger(new UserModifyAfterDelete($this, $permanent));
-			return true;	
+			return true;
 		} else {
 			return false;
 		}
@@ -320,7 +320,7 @@ class User extends UserComponent {
 	public function read(){
 		return $this->_read();
 	}
-	
+
 	public function getXML(DOMDocument $xml){
 		$user = $xml->createElement('user');
 		$user->setAttribute('id', $this->getID());
@@ -349,26 +349,9 @@ class User extends UserComponent {
 		}
 		$this->getComponentsXML($xml, $user);
 		return $user;
-	}	
-	public function &getArray(){ 
-		$user = array();
-		$user['id'] = $this->getID();
-		if(!is_null($this->getUsername())){
-			$user['username'] = $this->getUsername();
-		}
-		if(!is_null($this->getEmail())){
-			$user['email'] = $this->getEmail();
-		}
-		if(!is_null($this->getLastLogin())){
-			$user['lastlogin'] = $this->getLastLogin();
-		}
-		if(!is_null($this->getCreateDate())){
-			$user['create_timestamp'] = $this->getCreateDate();
-		}
-		$user = array('user'=>&$user);
-		return $user;		
-	}	
-	
+	}
+
+
 	private function _setFromArray($array){
 		if(!is_null($array[self::FIELD_ID])){
 			$this->id = (int) $array[self::FIELD_ID];
@@ -424,7 +407,7 @@ class User extends UserComponent {
 			return true;
 		} else {
 			return false;
-		}		
+		}
 	}
 	private function _update(){
 		if($this->dao->update($this->id, $this->username, $this->email, $this->password, $this->activated, $this->activation_string, $this->last_timestamp)){

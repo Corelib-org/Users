@@ -5,13 +5,94 @@
 		<description>Extension controlling user functions</description>
 	</setup>
 	<pages>
-
+		<get>
+			<page>
+				<url>/corelib/extensions/Users/</url>
+				<file>{CORELIB}/Users/lib/http/get/user.php</file>
+				<exec>UserList</exec>
+			</page>
+			<page>
+				<url>/corelib/extensions/Users/create/</url>
+				<file>{CORELIB}/Users/lib/http/get/user.php</file>
+				<exec>create</exec>
+			</page>			
+			<page type="regex">
+				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/edit\/$/</expr>
+				<exec>edit('\1')</exec>
+				<file>{CORELIB}/Users/lib/http/get/user.php</file>
+			</page>
+			<page type="regex">
+				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/delete\/$/</expr>
+				<exec>delete('\1')</exec>
+				<file>{CORELIB}/Users/lib/http/get/user.php</file>
+			</page>
+		</get>
 	</pages>	
 	<extendprops id="bace91bc-9132-11db-9dfa-0003ffb1de2c">
+		<menu locked="false">
+			<group title="Users" id="users" url="/corelib/extensions/Users/"/>
+		</menu>	
 		<database>
 			<engine id="MySQLi">
 				<scripts>{CORELIB}/Users/Share/Database/MySQL</scripts>
 			</engine>
 		</database>
-	</extendprops>	
+		<code-generator>
+			<table name="tbl_users" prefix="{CORELIB}/Users">
+				<generator name="CodeGeneratorModel">
+					<field name="password" readable="false"/>
+					<field name="activation_string" writable="false" readable="false"/>
+				</generator>
+	 			<generator name="CodeGeneratorModelList"/>
+	 			<generator name="CodeGeneratorCorelibGUI">
+					<layout>
+						<list xsl-mode="xhtml-list" render-mode="table" draw-actions="true"> 
+							<field name="username"/>
+							<field name="email"/>
+							<field name="activated"/>
+							<field name="deleted"/>
+							<field name="create_timestamp"/>
+							<field name="last_timestamp"/>
+						</list> 
+						<list render-mode="select-options"/>
+					</layout>
+					<list/>
+					<edit>
+						<field name="username"/>
+						<field name="password"/>
+						<field name="email"/>
+						<field name="activated"/>
+					</edit>
+					<create>
+						<field name="username"/>
+						<field name="password"/>
+						<field name="email"/>
+						<field name="activated"/>
+					</create>
+					<delete/>
+				</generator>
+			</table>
+			<group name="Users">
+				<table name="tbl_users">
+					<generator name="CodeGeneratorGUI">
+						<layout name="CodeGeneratorGUILayout">
+							<list xsl-mode="xhtml-list" render-mode="table" draw-actions="true"> 
+								<field name="username"/>
+								<field name="email"/>
+								<field name="activated"/>
+								<field name="deleted"/>
+								<field name="create_timestamp"/>
+								<field name="last_timestamp"/>
+							</list> 
+							<list render-mode="select-options"/>
+						</layout>
+						<list/>
+						<edit/>
+						<create/>
+						<delete/>
+					</generator>
+				</table>
+			</group>
+		</code-generator>
+	</extendprops>
 </extension>

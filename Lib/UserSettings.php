@@ -39,7 +39,7 @@ class UserSettings implements Singleton,Output {
 	/**
 	 * @var User
 	 */
-	private $user = null;
+	private $user = false;
 
 	/**
 	 *	@return UserSettings
