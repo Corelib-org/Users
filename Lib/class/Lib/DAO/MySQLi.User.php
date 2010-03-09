@@ -28,7 +28,6 @@
  *
  * @link http://www.corelib.org/
  * @version 1.1.0 ($Id$)
- * @filesource
  */
 
 /**

@@ -25,6 +25,7 @@
  *
  * @category corelib
  * @package Users
+ * @package Authorization
  *
  * @author Steffen Sørensen <ss@corelib.org>
  * @copyright Copyright (c) 2010
@@ -210,7 +211,10 @@ class UserAuthorization implements Singleton,Output {
 	 */
 	public function su(User $user){
 		if(is_array($this->users)){
-			$this->users[] = $user;
+			$manager = $user->addComponent(new UserPermissionManager());
+			$manager->reload();
+			$this->users[] = array('user' => $user,
+			                       'permissions' => $manager);
 			return true;
 		} else {
 			return false;
@@ -248,6 +252,34 @@ class UserAuthorization implements Singleton,Output {
 	}
 
 	/**
+	 * Check permissions.
+	 *
+	 * Check if authorized user has one or more permissions. this method
+	 * take any number of arguments with mixed data type of string permission
+	 * ident name or {@link UserPermission} instance.
+	 *
+	 * @param mixed $item string permission ident name or {@link UserPermission} instance
+	 * @return unknown_type
+	 */
+	public function checkPermissions($item=null){
+		if($this->isAuthorized()){
+			$array = func_get_args();
+			foreach (func_get_args() as $permission){
+				if($permission instanceof UserPermission){
+					if($this->getPermissionManager()->getPermission($permission)){
+						return true;
+					}
+				} else {
+					if($this->getPermissionManager()->getPermissionByIdent($permission)){
+						return true;
+					}
+				}
+			}
+		}
+		return false;
+	}
+
+	/**
 	 * Get current authorized user.
 	 *
 	 * @return User user instance if a user is authorized, else return false.
@@ -255,7 +287,21 @@ class UserAuthorization implements Singleton,Output {
 	public function getUser(){
 		$user = sizeof($this->users) - 1;
 		if(isset($this->users[$user])){
-			return $this->users[$user];
+			return $this->users[$user]['user'];
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Get current authorized user permission manager.
+	 *
+	 * @return UserPermissionManager permission manager instance if a user is authorized, else return false.
+	 */
+	public function getPermissionManager(){
+		$user = sizeof($this->users) - 1;
+		if(isset($this->users[$user])){
+			return $this->users[$user]['manager'];
 		} else {
 			return false;
 		}
