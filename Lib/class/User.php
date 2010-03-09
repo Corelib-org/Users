@@ -248,7 +248,7 @@ abstract class CompositeUser extends CompositeOutput {
  * @category corelib
  * @package Users
  */
-class User extends CompositeUser implements Output,CacheableOutput {
+class User extends CompositeUser implements CacheableOutput {
 	/* Properties */
 	private $id = null;
 	private $username = null;

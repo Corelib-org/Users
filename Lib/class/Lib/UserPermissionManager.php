@@ -127,12 +127,24 @@ class UserPermissionManager extends CompositeUser {
 	/**
 	 * Get permission.
 	 *
+	 * Get valid permission by {@link UserPermission}, if permission is not
+	 * set or if permissions is expired return false, else return {@link UserPermission}
+	 *
 	 * @param UserPermission $permission
 	 * @return UserPermission on success, else return false
+	 * @internal
 	 */
 	public function getPermission(UserPermission $permission){
 		if(isset($this->permissions[$permission->getID()])){
-			return $this->permissions[$permission->getID()]['permission'];
+			if(!is_null($this->permissions[$permission->getID()]['expire'])){
+				if($this->permissions[$permission->getID()]['expire'] > time()){
+					return $this->permissions[$permission->getID()]['permission'];
+				} else {
+					return false;
+				}
+			} else {
+				return $this->permissions[$permission->getID()]['permission'];
+			}
 		} else {
 			return false;
 		}
@@ -141,17 +153,32 @@ class UserPermissionManager extends CompositeUser {
 	/**
 	 * Get permission by ident.
 	 *
+	 * Get valid permission by ident, if permission is not
+	 * set or if permissions is expired return false, else
+	 * return {@link UserPermission}
+	 *
 	 * @param string $ident permission ident
 	 * @return UserPermission on success, else return false
+	 * @internal
 	 */
 	public function getPermissionByIdent($ident){
 		assert('is_string($ident)');
 		if(isset($this->reference[$ident])){
-			return $this->reference[$ident]['permission'];
+			if(!is_null($this->reference[$ident]['expire'])){
+				if($this->reference[$ident]['expire'] > time()){
+					return $this->reference[$ident]['permission'];
+				} else {
+					return false;
+				}
+			} else {
+				return $this->reference[$ident]['permission'];
+			}
 		} else {
 			return false;
 		}
 	}
+
+
 
 	/**
 	 * Grant permission.

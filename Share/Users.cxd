@@ -73,11 +73,12 @@
 	</pages>
 	<props>
 		<user-editmodes>
-			
+			<mode id="content" prefix="corelib/extensions/Users/" suffix="/edit/" title="Basic information"/>
+			<mode id="content" prefix="corelib/extensions/Users/" suffix="/Permissions/" title="Permission"/>
 		</user-editmodes>
 	</props>
 	<extendprops id="bace91bc-9132-11db-9dfa-0003ffb1de2c">
-		<menu locked="false">
+		<menu>
 			<group title="Users" id="users" url="/corelib/extensions/Users/">
 				<item url="/corelib/extensions/Users/Permissions/">Permissions</item>
 			</group>
