@@ -192,6 +192,54 @@ abstract class UserViewList implements ViewList { }
 
 
 //*****************************************************************//
+//********************* CompositeUser class ***********************//
+//*****************************************************************//
+/**
+ * User compatible composite.
+ *
+ * @category corelib
+ * @package Users
+ */
+abstract class CompositeUser extends CompositeOutput {
+
+
+	//*****************************************************************//
+	//*************** CompositeUser class properties ******************//
+	//*****************************************************************//
+	/**
+	 * Instance owner.
+	 *
+	 * @var User
+	 */
+	private $user = null;
+
+
+	//*****************************************************************//
+	//***************** CompositeUser class methods *******************//
+	//*****************************************************************//
+	/**
+	 * Get owner instance.
+	 *
+	 * @return User
+	 */
+	public function getUser(){
+		return $this->user;
+	}
+
+	/**
+	 * Set user.
+	 *
+	 * @param $user
+	 * @return User
+	 */
+	protected function _setUser(User $user){
+		$this->user = $user;
+		return $user;
+	}
+}
+
+
+//*****************************************************************//
 //************************** Model class **************************//
 //*****************************************************************//
 /**
@@ -200,7 +248,7 @@ abstract class UserViewList implements ViewList { }
  * @category corelib
  * @package Users
  */
-class User implements Output,CacheableOutput {
+class User extends CompositeUser implements Output,CacheableOutput {
 	/* Properties */
 	private $id = null;
 	private $username = null;
@@ -579,6 +627,26 @@ class User implements Output,CacheableOutput {
 		return true;
 	}
 
+	/**
+	 * Add component.
+	 *
+	 * @see CompositeOutput::addComponent()
+	 */
+	public function addComponent(CompositeUser $component){
+		$component->_setUser($this);
+		$this->components[] = $component;
+		return $component;
+	}
+
+	/**
+	 * Get composite.
+	 *
+	 * @return User
+	 */
+	public function getComposite(){
+		return $this;
+	}
+
 
 	//*****************************************************************//
 	//********************** Data change methods **********************//
@@ -686,6 +754,9 @@ class User implements Output,CacheableOutput {
 		if(!is_null($this->last_timestamp)){
 			$user->setAttribute('last-timestamp', $this->getLastTimestamp());
 		}
+
+		$this->getComponentsXML($this->components, $user);
+
 		/* Get XML method end */
 		return $user;
 	}
