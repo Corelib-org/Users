@@ -3,6 +3,7 @@
 	<setup>
 		<name>Corelib - Users</name>
 		<description>Extension controlling user functions</description>
+		<handler>UsersExtensionConfig</handler>
 	</setup>
 	<pages>
 		<get>
@@ -46,7 +47,11 @@
 				<exec>delete('\1')</exec>
 				<file>{CORELIB}/Users/lib/http/get/user-permission.php</file>
 			</page>
-			
+			<page type="regex">
+				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Permissions\/$/</expr>
+				<exec>userPermissions('\1')</exec>
+				<file>{CORELIB}/Users/lib/http/get/user-permission.php</file>
+			</page>
 		</get>
 		<post>
 			<page>
@@ -73,8 +78,8 @@
 	</pages>
 	<props>
 		<user-editmodes>
-			<mode id="content" prefix="corelib/extensions/Users/" suffix="/edit/" title="Basic information"/>
-			<mode id="content" prefix="corelib/extensions/Users/" suffix="/Permissions/" title="Permission"/>
+			<mode id="basic" prefix="corelib/extensions/Users/" suffix="/edit/" title="Basic information"/>
+			<mode id="permissions" prefix="corelib/extensions/Users/" suffix="/Permissions/" title="Permission"/>
 		</user-editmodes>
 	</props>
 	<extendprops id="bace91bc-9132-11db-9dfa-0003ffb1de2c">

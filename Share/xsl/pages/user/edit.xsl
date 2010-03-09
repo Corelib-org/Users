@@ -7,6 +7,12 @@
 	<xsl:template match="content" mode="xhtml-content">
 		<xsl:call-template name="h1">
 			<xsl:with-param name="headline">Edit User</xsl:with-param>
+			<xsl:with-param name="nav">
+				<xsl:apply-templates select="user-editmodes" mode="view-selector">
+					<xsl:with-param name="id" select="user/@id"/>
+					<xsl:with-param name="select" select="basic"/>
+				</xsl:apply-templates>
+			</xsl:with-param>
 		</xsl:call-template>
 		
 		<form method="post">

@@ -1,3 +1,0 @@
-ALTER TABLE `tbl_users_has_information` CHANGE `fk_information` `fk_information` SMALLINT( 6 ) UNSIGNED NULL;  
-ALTER TABLE `tbl_users_has_information` ADD FOREIGN KEY ( `fk_information_items` ) REFERENCES `tbl_information_items` (`pk_information_items`) ON DELETE CASCADE ON UPDATE CASCADE ;
-ALTER TABLE `tbl_users_has_information`  COMMENT = 'Revision: 2' ;

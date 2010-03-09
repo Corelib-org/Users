@@ -57,6 +57,23 @@ class WebPage extends ManagerPage {
 		$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user-permission/create.xsl');
 	}
 
+	public function userPermissions($id){
+		$user = new User($id);
+		if($user->read()){
+			$this->addContent(UsersExtensionConfig::getInstance()->getPropertyOutput('user-editmodes'));
+
+			$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user-permission/edit-user-permissions.xsl');
+
+			$manager = $user->addComponent(new UserPermissionManager());
+			$manager->reload();
+
+			$this->addContent($user);
+			$this->addContent(new UserPermissionList());
+		} else {
+			$this->xsl->addTemplate('share/xsl/pages/404.xsl');
+		}
+	}
+
 	public function delete($id){
 		$user_permission = new UserPermission($id);
 		if($user_permission->read()){

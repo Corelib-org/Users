@@ -68,6 +68,7 @@ class WebPage extends ManagerPage {
 	public function edit($id){
 		$user = new User($id);
 		if($user->read()){
+			$this->addContent(UsersExtensionConfig::getInstance()->getPropertyOutput('user-editmodes'));
 			$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user/edit.xsl');
 			$this->addContent($user);
 		} else {

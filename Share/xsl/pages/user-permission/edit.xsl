@@ -3,9 +3,10 @@
 	<xsl:include href="../../../../../Base/share/xsl/base/layouts/default.xsl"/>
 	<xsl:include href="../../base/user-permission.xsl"/>
 
-
 	<xsl:template match="content" mode="xhtml-content">
-		<h1>Edit UserPermission</h1>
+		<xsl:call-template name="h1">
+			<xsl:with-param name="headline">Edit permission</xsl:with-param>
+		</xsl:call-template>	
 		<form method="post">
 			<div>
 				<!-- Edit --> 
@@ -23,4 +24,5 @@
 			<input type="submit" class="button submit right"/>
 		</form>
 	</xsl:template>
+	
 </xsl:stylesheet>

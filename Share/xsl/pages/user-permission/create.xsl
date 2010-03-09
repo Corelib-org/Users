@@ -5,7 +5,7 @@
 
 	<xsl:template match="content" mode="xhtml-content">
 		<xsl:call-template name="h1">
-			<xsl:with-param name="headline">Add permissions</xsl:with-param>
+			<xsl:with-param name="headline">Add permission</xsl:with-param>
 		</xsl:call-template>	
 		<form method="post">
 			<div>
