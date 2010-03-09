@@ -70,7 +70,12 @@
 				<file>{CORELIB}/Users/lib/http/post/user-permission.php</file>
 			</page>
 		</post>
-	</pages>	
+	</pages>
+	<props>
+		<user-editmodes>
+			
+		</user-editmodes>
+	</props>
 	<extendprops id="bace91bc-9132-11db-9dfa-0003ffb1de2c">
 		<menu locked="false">
 			<group title="Users" id="users" url="/corelib/extensions/Users/">
@@ -82,6 +87,7 @@
 				<scripts>{CORELIB}/Users/Share/Database/MySQL</scripts>
 			</engine>
 		</database>
+		<!-- 
 		<code-generator>
 			<table name="tbl_users" prefix="{CORELIB}/Users">
 				<generator name="CodeGeneratorModel">
@@ -144,5 +150,6 @@
 				</generator>
 			</table>			
 		</code-generator>
+		-->
 	</extendprops>
 </extension>

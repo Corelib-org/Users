@@ -30,7 +30,7 @@
 			</tfoot>
 			<tbody>
 				<xsl:choose>
-					<xsl:when test="count(user) &gt; 0">
+					<xsl:when test="count(user-permission) &gt; 0">
 						<xsl:apply-templates select="user-permission" mode="xhtml-list" />
 					</xsl:when>
 					<xsl:otherwise>
