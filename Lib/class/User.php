@@ -226,13 +226,18 @@ abstract class CompositeUser extends CompositeOutput {
 		return $this->user;
 	}
 
+	public function addComponent(CompositeUser $component){
+		$component->_setUser($this->getUser());
+		parent::addComponent($component);
+	}
+
 	/**
 	 * Set user.
 	 *
 	 * @param $user
 	 * @return User
 	 */
-	protected function _setUser(User $user){
+	private function _setUser(User $user){
 		$this->user = $user;
 		return $user;
 	}
@@ -627,15 +632,8 @@ class User extends CompositeUser implements CacheableOutput {
 		return true;
 	}
 
-	/**
-	 * Add component.
-	 *
-	 * @see CompositeOutput::addComponent()
-	 */
-	public function addComponent(CompositeUser $component){
-		$component->_setUser($this);
-		$this->components[] = $component;
-		return $component;
+	public function getUser(){
+		return $this;
 	}
 
 	/**

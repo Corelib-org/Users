@@ -123,6 +123,23 @@ class UserAuthorizationPutSettingsXML extends EventAction {
 	}
 }
 
+
+//*****************************************************************//
+//***************** EventUserAuthorized class *********************//
+//*****************************************************************//
+class EventUserAuthorized implements Event {
+	private $user = null;
+
+	public function __construct(User $user){
+		$this->user = $user;
+	}
+
+	public function getUser(){
+		return $this->user;
+	}
+}
+
+
 //*****************************************************************//
 //******************* UserAuthorization class *********************//
 //*****************************************************************//
@@ -211,7 +228,8 @@ class UserAuthorization implements Singleton,Output {
 	 */
 	public function su(User $user){
 		if(is_array($this->users)){
-			$manager = $user->addComponent(new UserPermissionManager());
+			$manager = new UserPermissionManager();
+			$user->addComponent($manager);
 			$manager->reload();
 			$this->users[] = array('user' => $user,
 			                       'permissions' => $manager);
