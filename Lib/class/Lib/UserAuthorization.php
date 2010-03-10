@@ -147,6 +147,12 @@ class EventUserAuthorized implements Event {
 	 */
 	private $user = null;
 
+	/**
+	 * @var boolean
+	 * @internal
+	 */
+	private $su = null;
+
 
 	//*****************************************************************//
 	//************* EventUserAuthorized class methods *****************//
@@ -155,11 +161,13 @@ class EventUserAuthorized implements Event {
 	 * Create new instance.
 	 *
 	 * @param User $user
+	 * @param boolean $su
 	 * @return void
 	 * @internal
 	 */
-	public function __construct(User $user){
+	public function __construct(User $user, $su){
 		$this->user = $user;
+		$this->su = $su;
 	}
 
 	/**
@@ -170,7 +178,32 @@ class EventUserAuthorized implements Event {
 	public function getUser(){
 		return $this->user;
 	}
+
+	/**
+	 * Get switch user information.
+	 *
+	 * Get information about whether the authorize action
+	 * is a switch user action.
+	 *
+	 * @return unknown_type
+	 */
+	public function isSU(){
+		return $this->su;
+	}
 }
+
+
+//*****************************************************************//
+//******************** EventUserLogout class **********************//
+//*****************************************************************//
+/**
+ * User succesfully loggedout event.
+ *
+ * @category corelib
+ * @package Users
+ * @subpackage Authorization
+ */
+class EventUserLogout implements Event { }
 
 
 //*****************************************************************//
@@ -248,7 +281,7 @@ class UserAuthorization implements Singleton,Output {
 	public function authorize(User $user){
 		$this->users = array();
 		SessionHandler::getInstance()->regenerateID();
-		return $this->su($user);
+		return $this->_authorize($user);
 	}
 
 	/**
@@ -260,6 +293,17 @@ class UserAuthorization implements Singleton,Output {
 	 * @return boolean true on success, else return false.
 	 */
 	public function su(User $user){
+		$this->_authorize($user, true);
+	}
+
+	/**
+	 * Authorize user.
+	 *
+	 * @param User $user
+	 * @return boolean true on success, else return false.
+	 * @internal
+	 */
+	private function _authorize(User $user, $su=false){
 		if(is_array($this->users)){
 			$manager = new UserPermissionManager();
 			$user->addComponent($manager);
@@ -268,7 +312,7 @@ class UserAuthorization implements Singleton,Output {
 			$this->users[] = array('user' => $user,
 			                       'permissions' => $manager);
 
-			EventHandler::getInstance()->trigger(new EventUserAuthorized($user));
+			EventHandler::getInstance()->trigger(new EventUserAuthorized($user, $su));
 			return true;
 		} else {
 			return false;
@@ -282,10 +326,14 @@ class UserAuthorization implements Singleton,Output {
 	 */
 	public function logout(){
 		if($this->isAuthorized()){
+			$user = $this->getUser();
 			array_pop($this->users);
+			$su = true;
 			if(sizeof($this->users) <= 0){
 				$this->users = null;
+				$su = false;
 			}
+			EventHandler::getInstance()->trigger(new EventUserLogout($user, $su));
 			return true;
 		} else {
 			return false;
