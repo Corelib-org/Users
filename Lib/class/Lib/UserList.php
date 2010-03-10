@@ -387,6 +387,8 @@ class UserList implements Output,CacheableOutput {
 	//************************* Output methods ************************//
 	//*****************************************************************//
 	/**
+	 * Get Output XML.
+	 *
 	 * @see Output::getXML()
 	 * @uses UserList::$filter
 	 * @uses UserList::$order

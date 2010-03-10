@@ -75,7 +75,5 @@ class UsersExtensionConfig extends CorelibManagerExtension {
 		}
 		return self::$instance;
 	}
-
 }
-
 ?>

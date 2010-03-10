@@ -63,6 +63,7 @@ class UserAuthorizationConfirmEvent extends EventAction  {
 	}
 }
 
+
 //*****************************************************************//
 //************* UserAuthorizationStoreEvent class *****************//
 //*****************************************************************//
@@ -127,13 +128,45 @@ class UserAuthorizationPutSettingsXML extends EventAction {
 //*****************************************************************//
 //***************** EventUserAuthorized class *********************//
 //*****************************************************************//
+/**
+ * User succesfully authorized event.
+ *
+ * @category corelib
+ * @package Users
+ * @subpackage Authorization
+ */
 class EventUserAuthorized implements Event {
+
+
+	//*****************************************************************//
+	//************ EventUserAuthorized class properties ***************//
+	//*****************************************************************//
+	/**
+	 * @var User
+	 * @internal
+	 */
 	private $user = null;
 
+
+	//*****************************************************************//
+	//************* EventUserAuthorized class methods *****************//
+	//*****************************************************************//
+	/**
+	 * Create new instance.
+	 *
+	 * @param User $user
+	 * @return void
+	 * @internal
+	 */
 	public function __construct(User $user){
 		$this->user = $user;
 	}
 
+	/**
+	 * Get user instance.
+	 *
+	 * @return User
+	 */
 	public function getUser(){
 		return $this->user;
 	}
@@ -231,8 +264,11 @@ class UserAuthorization implements Singleton,Output {
 			$manager = new UserPermissionManager();
 			$user->addComponent($manager);
 			$manager->reload();
+
 			$this->users[] = array('user' => $user,
 			                       'permissions' => $manager);
+
+			EventHandler::getInstance()->trigger(new EventUserAuthorized($user));
 			return true;
 		} else {
 			return false;
