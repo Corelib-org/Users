@@ -136,7 +136,7 @@ class UserSettings extends UserAuthorizationPointer {
 		if(is_null($this->manager)){
 			if(!$this->manager = $this->getComponent()){
 				$this->manager = new UserSettingManager();
-				$this->addComponent($manager, UserAuthorization::getInstance()->getUser());
+				$this->addComponent($this->manager, UserAuthorization::getInstance()->getUser());
 			}
 		}
 		return $this->manager;
