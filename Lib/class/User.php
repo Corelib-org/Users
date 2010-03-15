@@ -234,7 +234,7 @@ abstract class CompositeUser extends CompositeOutput {
 	 */
 	public function addComponent(CompositeUser $component){
 		$component->_setUser($this->getUser());
-		parent::addComponent($component);
+		return parent::addComponent($component);
 	}
 
 	/**

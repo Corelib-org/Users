@@ -117,10 +117,7 @@ class UserAuthorizationPutSettingsXML extends EventAction {
 	 * @internal
 	 */
 	public function update(Event $event){
-		$auth = UserAuthorization::getInstance();
-		if($auth->isAuthorized()){
-			$event->getPage()->addSettings($auth);
-		}
+		$event->getPage()->addSettings(UserAuthorization::getInstance());
 	}
 }
 
@@ -228,7 +225,13 @@ class UserAuthorization implements Singleton,Output {
 	 * @var array list of users.
 	 * @internal
 	 */
-	private $users = null;
+	private $users = array();
+
+	/**
+	 * @var boolean true if session is anonymous
+	 * @internal
+	 */
+	private $anonymous = true;
 
 	/**
 	 * Singleton Object Reference.
@@ -248,7 +251,9 @@ class UserAuthorization implements Singleton,Output {
 	 * @return void
 	 * @internal
 	 */
-	private function __construct(){ }
+	private function __construct(){
+		$this->_anonymous();
+	}
 
 	/**
 	 * Return instance of UserAuthorization.
@@ -279,6 +284,8 @@ class UserAuthorization implements Singleton,Output {
 	 * @return boolean true on success, else return false
 	 */
 	public function authorize(User $user){
+		$this->logout();
+		$this->anonymous = false;
 		$this->users = array();
 		SessionHandler::getInstance()->regenerateID();
 		return $this->_authorize($user);
@@ -319,6 +326,12 @@ class UserAuthorization implements Singleton,Output {
 		}
 	}
 
+	private function _anonymous(){
+		$this->anonymous = true;
+		$user = new User();
+		$this->_authorize($user);
+	}
+
 	/**
 	 * Logout current user.
 	 *
@@ -330,8 +343,9 @@ class UserAuthorization implements Singleton,Output {
 			array_pop($this->users);
 			$su = true;
 			if(sizeof($this->users) <= 0){
-				$this->users = null;
+				$this->users = array();
 				$su = false;
+				$this->_anonymous();
 			}
 			EventHandler::getInstance()->trigger(new EventUserLogout($user, $su));
 			return true;
@@ -343,14 +357,23 @@ class UserAuthorization implements Singleton,Output {
 	/**
 	 * Check if there is a authorized user.
 	 *
-	 * @return boolean if a user is authorized, else return false.
+	 * @return boolean true if a user is authorized, else return false.
 	 */
 	public function isAuthorized(){
-		if(count($this->users) > 0){
+		if(count($this->users) > 0 && !$this->anonymous){
 			return true;
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Check if session is anynymous.
+	 *
+	 * @return boolean true if a session is anynymous, else return false.
+	 */
+	public function isAnonymous(){
+		return $this->anonymous;
 	}
 
 	/**
@@ -432,9 +455,11 @@ class UserAuthorization implements Singleton,Output {
 	 * @return DOMElement
 	 */
 	public function getXML(DOMDocument $xml){
-		if($this->isAuthorized()){
-			return $this->getUser()->getXML($xml);
+		$user = $this->getUser()->getXML($xml);
+		if($this->isAnonymous()){
+			$user->setAttribute('anonymous', 'true');
 		}
+		return $user;
 	}
 
 	/**
@@ -450,4 +475,5 @@ $eventHandler = EventHandler::getInstance();
 $eventHandler->register(new UserAuthorizationConfirmEvent(), 'EventRequestStart');
 $eventHandler->register(new UserAuthorizationStoreEvent(), 'EventRequestEnd');
 $eventHandler->register(new UserAuthorizationPutSettingsXML(), 'EventApplyDefaultSettings');
+$eventHandler->register(new UserAuthorizationPointerManagerStoreEvent(), 'EventRequestEnd');
 ?>

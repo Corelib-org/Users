@@ -64,7 +64,8 @@ class WebPage extends ManagerPage {
 
 			$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user-permission/edit-user-permissions.xsl');
 
-			$manager = $user->addComponent(new UserPermissionManager());
+			$manager = new UserPermissionManager();
+			$user->addComponent($manager);
 			$manager->reload();
 
 			$this->addContent($user);
