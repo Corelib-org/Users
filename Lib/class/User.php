@@ -764,7 +764,7 @@ class User extends CompositeUser implements CacheableOutput {
 			$user->setAttribute('last-timestamp', $this->getLastTimestamp());
 		}
 
-		$this->getComponentsXML($this->components, $user);
+		$this->getComponentsXML($user);
 
 		/* Get XML method end */
 		return $user;
