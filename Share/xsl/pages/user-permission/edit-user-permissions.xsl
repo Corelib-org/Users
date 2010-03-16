@@ -15,40 +15,59 @@
 			</xsl:with-param>
 		</xsl:call-template>	
 		<form method="post">
-			<div>
 				<script type="text/javascript">
 					<xsl:comment>
-						function moveOption(option, from, to){
-							from.remove(option);
-							to.add(new Option(option.text, option.value), null);
+						function checkCheckbox(row, checkbox){
+							if(checkbox.checked == false){
+								row.addClassName('selected');
+								checkbox.checked = true;
+							} else {
+								row.removeClassName('selected');
+								checkbox.checked = false;
+							}
 						}
 					// </xsl:comment>
 				</script>
+				
 				<table>
-					<tr>
-						<td style="border: 0px;">
-							<h3>Available permissions</h3>
-							<select style="width: 372px;" id="available" name="revoke[]" class="select" size="10">
-								<xsl:for-each select="user-permission-list/user-permission">
-									<xsl:if test="@id != /page/settings/user/user-permission-manager/user-permission/@id">
-										<option value="id"><xsl:value-of select="@title"/></option>
+					<thead>
+						<th class="text"></th>
+						<th class="text ident">Ident</th>
+						<th class="text title">Title</th>
+						<th class="date description">Description</th>
+					</thead>
+					<xsl:for-each select="user-permission-list/user-permission">
+						<xsl:variable name="id" select="@id"/>
+						<xsl:element name="tr">
+							<xsl:attribute name="class">
+								<xsl:if test="position() mod 2 = 0">
+									<xsl:text>highlight</xsl:text>
+								</xsl:if>
+								<xsl:if test="../../user/user-permission-manager/user-permission[@id = $id] = true()">
+									<xsl:text> selected</xsl:text>
+								</xsl:if>
+							</xsl:attribute>
+
+					
+							<td class="checkbox" onclick="checkCheckbox(this.parentNode, $('permission_{@id}'));">
+								<xsl:element name="input">
+									<xsl:attribute name="type">checkbox</xsl:attribute>
+									<xsl:attribute name="name">permission[<xsl:value-of select="@id"/>]</xsl:attribute>
+									<xsl:attribute name="id">permission_<xsl:value-of select="@id"/></xsl:attribute>
+									<xsl:attribute name="onclick">checkCheckbox(this.parentNode, $('permission_<xsl:value-of select="@id"/>'));</xsl:attribute>
+									<xsl:if test="../../user/user-permission-manager/user-permission[@id = $id] = true()">
+										<xsl:attribute name="checked">true</xsl:attribute>
 									</xsl:if>
-								</xsl:for-each>
-							</select>
-						</td>
-						<td style="border: 0px;">
-							<h3>Granted permissions</h3>
-							<select style="width: 372px;" id="granted" class="select" size="10" ondblclick="moveOption(this.options[this.selectedIndex], this, $('available'));">
-								<xsl:for-each select="/page/settings/user/user-permission-manager/user-permission">
-									<option value="id"><xsl:value-of select="@title"/></option>
-								</xsl:for-each>
-							</select>
-						</td>
-					</tr>
-				</table>
+								</xsl:element>
+							</td>
+							<td onclick="checkCheckbox(this.parentNode, $('permission_{@id}'));"><xsl:value-of select="@ident"/></td>
+							<td onclick="checkCheckbox(this.parentNode, $('permission_{@id}'));"><xsl:value-of select="@title"/></td>
+							<td onclick="checkCheckbox(this.parentNode, $('permission_{@id}'));"><xsl:value-of select="@description"/></td>
+						</xsl:element>
+					</xsl:for-each>
+				</table>				
 				<!-- Edit end -->
-			</div>
-			<input type="submit" class="button submit right"/>
+			<input type="submit" value="Change permissions" class="button submit right"/>
 		</form>
 	</xsl:template>
 </xsl:stylesheet>

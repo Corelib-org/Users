@@ -218,6 +218,7 @@ class UserPermissionManager extends CompositeUser {
 		if(!is_null($id)){
 			$this->permissions[$id] = array('permission' => $permission,
 			                                'revoke' => true);
+			unset($this->reference[$permission->getIdent()]);
 		} else {
 			trigger_error('Can\'t revoke a permission without permission id. please call commit before revoking a permission', E_USER_ERROR);
 			return false;
@@ -246,7 +247,7 @@ class UserPermissionManager extends CompositeUser {
 	public function commit(){
 		$this->_getDAO();
 		foreach ($this->permissions as $permission){
-			if(isset($permission['revoke']) && $permission['revoke'] === true){
+			if(isset($permission['revoke']) && $permission['revoke']){
 				$this->dao->revoke($this->getUser()->getID(), $permission['permission']->getID());
 			} else {
 				$this->dao->grant($this->getUser()->getID(), $permission['permission']->getID(), $permission['comment'], $permission['expire']);

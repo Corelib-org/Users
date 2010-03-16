@@ -28,7 +28,6 @@
  * @subpackage User
  * @link http://www.corelib.org/
  * @version 1.0.0 ($Id$)
- * @filesource
  */
 
 /**

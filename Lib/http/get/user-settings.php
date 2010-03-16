@@ -38,56 +38,13 @@
  */
 class WebPage extends ManagerPage {
 	/* Interface get methods */
-	public function UserList(){
-		$list = new UserList();
-		$list->setLimit(20);
-		$list->setPage($this->getPagingPage());
 
-		$input = InputHandler::getInstance();
-		if($input->validateGet('view', new InputValidatorEnum('active', 'inactive', 'deleted', 'all'))){
-			switch($input->getGet('view')){
-				case 'inactive':
-					$list->setActivatedFilter(false);
-					$list->setDeletedFilter(false);
-					break;
-				case 'deleted':
-					$list->setDeletedFilter(true);
-					break;
-				case 'active':
-					$list->setActivatedFilter(true);
-					$list->setDeletedFilter(false);
-					break;
-				}
-		} else {
-			$list->setActivatedFilter(true);
-			$list->setDeletedFilter(false);
-		}
-
-		$this->addContent($list);
-		$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user/list.xsl');
-	}
-
-	public function edit($id){
+	public function settings($id){
 		$user = new User($id);
 		if($user->read()){
-			$this->addContent(UsersExtensionConfig::getInstance()->getPropertyOutput('user-editmodes'));
-			$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user/edit.xsl');
-			$this->addContent($user);
-		} else {
-			$this->xsl->addTemplate('share/xsl/pages/404.xsl');
-		}
-	}
-
-	public function create(){
-		$this->xsl->addTemplate(CORELIB.'/Users/share/xsl/pages/user/create.xsl');
-	}
-
-	public function delete($id){
-		$user = new User($id);
-		if($user->read()){
-			$user->setDeleted(true);
-			$user->commit();
-			$this->xsl->setLocation('corelib/extensions/Users/');
+			$settings = new UserSettingList();
+			$settings->setUserFilter($user);
+			$this->addContent($settings);
 		} else {
 			$this->xsl->addTemplate('share/xsl/pages/404.xsl');
 		}

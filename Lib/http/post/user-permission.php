@@ -57,6 +57,37 @@ class WebPage extends ManagerPage {
 		}
 	}
 
+
+	public function userPermissions($id){
+		$user = new User($id);
+		if($user->read()){
+
+			$manager = new UserPermissionManager();
+			$user->addComponent($manager);
+			$manager->reload();
+
+			$list = new UserPermissionList();
+			while($permission = $list->each()){
+				if($manager->getPermission($permission)){
+					$manager->revoke($permission);
+				}
+			}
+
+
+
+			$input = InputHandler::getInstance();
+			if($input->validatePost('permission', new InputValidatorArray(new InputValidatorNotEmpty()))){
+
+				$permissions = $input->getPost('permission');
+				foreach ($permissions as $id => $permission){
+					$manager->grant(new UserPermission($id));
+				}
+			}
+			$manager->commit();
+			$this->post->setLocation('corelib/extensions/Users/'.$user->getID().'/Permissions/');
+		}
+	}
+
 	/* Interface post methods end */
 
 	/**
