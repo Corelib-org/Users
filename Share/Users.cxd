@@ -104,6 +104,10 @@
 				<scripts>{CORELIB}/Users/Share/Database/MySQL</scripts>
 			</engine>
 		</database>
+		<resources>
+			<resource handle="users">{CORELIB}/Users/Share/web/</resource>
+		</resources>
+		
 		 
 		<!-- 
 			<table name="tbl_users" prefix="{CORELIB}/Users">

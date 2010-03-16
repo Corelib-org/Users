@@ -6,28 +6,30 @@
 		<table class="list">
 			<thead>
 				<th class="text username">
+				</th>
+				<th class="text username">
 					Username
 				</th>
 				<th class="text email">
 					E-mail
 				</th>
 				<th class="date create-timestamp">
-					create-timestamp
+					Created
 				</th>
 				<th class="date last-timestamp">
-					last-timestamp
+					Last seen
 				</th>
 				<th class="actions">
-					actions
+					Actions
 				</th>
 			</thead>
 			<tfoot>
 				<tr>
-					<td class="pager" colspan="3">
+					<td class="pager" colspan="4">
 						<xsl:apply-templates select="pager" />
 					</td>
 					<td class="count" colspan="2">
-						<xsl:value-of select="concat(@count, ' user')" />
+						<xsl:value-of select="concat(@count, ' users')" />
 					</td>
 				</tr>
 			</tfoot>
@@ -44,7 +46,25 @@
 		</table>
 	</xsl:template>
 	<xsl:template match="user-list/user" mode="xhtml-list">
-		<tr>
+		<xsl:element name="tr">
+			<xsl:attribute name="class">
+				<xsl:if test="position() mod 2 = 0">
+					<xsl:text>highlight</xsl:text>
+				</xsl:if>
+			</xsl:attribute>
+			<td class="symbols">
+				<xsl:choose>
+					<xsl:when test="@deleted = 'true'">
+						<img src="/corelib/resource/users/images/icons/user/red.png" alt="deleted" title="Deleted user"/>
+					</xsl:when>
+					<xsl:when test="@activated = 'false'">
+						<img src="/corelib/resource/users/images/icons/user/orange.png" alt="inactive" title="Inactive user"/>
+					</xsl:when>
+					<xsl:otherwise>
+						<img src="/corelib/resource/users/images/icons/user/green.png" alt="active" title="Active user"/>
+					</xsl:otherwise>
+				</xsl:choose>
+			</td>
 			<td class="text username">
 				<xsl:value-of select="@username" />
 			</td>
@@ -59,13 +79,13 @@
 			</td>
 			<td class="actions">
 				<a href="corelib/extensions/Users/{@id}/edit/">
-					edit
+					<img src="/corelib/resource/users/images/icons/user/edit.png"/>
 				</a>
 				<a href="corelib/extensions/Users/{@id}/delete/">
-					delete
+					<img src="/corelib/resource/users/images/icons/user/delete.png"/>
 				</a>
 			</td>
-		</tr>
+		</xsl:element>
 	</xsl:template>
 	
 	<xsl:template match="user-list" mode="form-select-options">

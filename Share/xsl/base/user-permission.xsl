@@ -53,10 +53,10 @@
 			</td>
 			<td class="actions">
 				<a href="corelib/extensions/Users/Permissions/{@id}/edit/">
-					edit
+					<img src="corelib/resource/manager/images/icons/generic/edit.png" alt="edit" title="Edit permission"/>
 				</a>
 				<a href="corelib/extensions/Users/Permissions/{@id}/delete/">
-					delete
+					<img src="corelib/resource/manager/images/icons/generic/delete.png" alt="delete" title="Delete permission"/>
 				</a>
 			</td>
 		</tr>

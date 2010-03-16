@@ -7,7 +7,7 @@
 		<xsl:call-template name="h1">
 			<xsl:with-param name="headline">User permissions</xsl:with-param>
 			<xsl:with-param name="nav">
-				<label for="view"><a href="corelib/extensions/Users/Permissions/create/">Add permission</a></label>
+				<label for="view"><img src="corelib/resource/manager/images/icons/generic/create.png" alt="add" title="Add permission"/>&#160;<a href="corelib/extensions/Users/Permissions/create/">Add permission</a></label>
 			</xsl:with-param>
 		</xsl:call-template>	
 		<!-- List --> 

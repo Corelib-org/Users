@@ -7,7 +7,7 @@
 		<xsl:call-template name="h1">
 			<xsl:with-param name="headline">User list</xsl:with-param>
 			<xsl:with-param name="nav">
-				<label for="view"><a href="corelib/extensions/Users/create/">Create user</a>&#160;&#160;&#160;</label>
+				<label for="view"><img src="/corelib/resource/users/images/icons/user/add.png" alt="deleted" title="Deleted user"/>&#160;<a href="corelib/extensions/Users/create/">Create user</a>&#160;&#160;&#160;</label>
 				<label for="view">View</label>
 				<select id="view" class="select" onchange="Toolbox.setLocation('corelib/extensions/Users/?view='+this.options[this.selectedIndex].value);">
 					<xsl:element name="option">
