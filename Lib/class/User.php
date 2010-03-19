@@ -182,14 +182,6 @@ interface DAO_User {
  */
 abstract class UserView extends View { }
 
-/**
- * Simple class for listing database cached xml views.
- *
- * @category corelib
- * @package Users
- */
-abstract class UserViewList implements ViewList { }
-
 
 //*****************************************************************//
 //********************* CompositeUser class ***********************//
