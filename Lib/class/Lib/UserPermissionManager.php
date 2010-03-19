@@ -202,7 +202,7 @@ class UserPermissionManager extends CompositeUser {
 			}
 			return true;
 		} else {
-			trigger_error('Can\'t grant a permission without permission id. please call commit before granting a permission', E_USER_ERROR);
+			trigger_error('Can\'t grant a permission without permission id. please call commit or read before granting a permission', E_USER_ERROR);
 			return false;
 		}
 	}
@@ -220,7 +220,7 @@ class UserPermissionManager extends CompositeUser {
 			                                'revoke' => true);
 			unset($this->reference[$permission->getIdent()]);
 		} else {
-			trigger_error('Can\'t revoke a permission without permission id. please call commit before revoking a permission', E_USER_ERROR);
+			trigger_error('Can\'t revoke a permission without permission id. please call commit or read before revoking a permission', E_USER_ERROR);
 			return false;
 		}
 	}
@@ -231,10 +231,12 @@ class UserPermissionManager extends CompositeUser {
 	 * @return boolean true on success, else return false
 	 */
 	public function reload(){
-		$this->_getDAO();
-		$res = $this->dao->getList($this->getUser()->getID());
-		while ($out = $res->fetchArray()) {
-			$this->grant(new UserPermission($out['pk_user_permissions'], $out), $out['comment'], $out['expire_timestamp']);
+		if(!is_null($this->getUser()->getID())){
+			$this->_getDAO();
+			$res = $this->dao->getList($this->getUser()->getID());
+			while ($out = $res->fetchArray()) {
+				$this->grant(new UserPermission($out['pk_user_permissions'], $out), $out['comment'], $out['expire_timestamp']);
+			}
 		}
 		return true;
 	}

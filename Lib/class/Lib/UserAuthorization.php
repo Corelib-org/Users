@@ -439,13 +439,8 @@ class UserAuthorization implements Singleton,Output {
 	 * @internal
 	 */
 	public function store(){
-		if($this->isAuthorized()){
-			$session = SessionHandler::getInstance();
-			$session->set(__CLASS__, serialize($this));
-			return true;
-		} else {
-			return false;
-		}
+		$session = SessionHandler::getInstance();
+		$session->set(__CLASS__, serialize($this));
 	}
 
 	/**
