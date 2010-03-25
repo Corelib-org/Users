@@ -606,7 +606,7 @@ class User extends CompositeUser implements CacheableOutput {
 	 * @return boolean true if passwords match, else return false
 	 */
 	public function checkPassword($password){
-		return ($this->getPassword() == sha1($password));
+		return ($this->password == sha1($password));
 	}
 
 	/**

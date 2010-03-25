@@ -83,33 +83,37 @@ class MySQLi_UserSetting extends DatabaseDAO implements Singleton,DAO_UserSettin
 	 * @see DAO_UserSetting::update()
 	 */
 	public function update($user, $ident, DatabaseDataHandler $data){
-		/* Special update fields */
-		$data->addExcludeField(UserSetting::FIELD_USER);
-		$data->addExcludeField(UserSetting::FIELD_IDENT);
-		/* Special update fields end */
+		if($data->isChanged(UserSetting::FIELD_VALUE)){
+			/* Special update fields */
+			$data->addExcludeField(UserSetting::FIELD_USER);
+			$data->addExcludeField(UserSetting::FIELD_IDENT);
+			/* Special update fields end */
 
-		$columns = $data->getUpdatedColumns();
-		$values = $data->getUpdatedColumnValues();
+			$columns = $data->getUpdatedColumns();
+			$values = $data->getUpdatedColumnValues();
 
-		/* Special create fields */
-		$data->removeExcludeField(UserSetting::FIELD_USER);
-		$data->removeExcludeField(UserSetting::FIELD_IDENT);
-		/* Special create fields end */
-		
-		$columns_create = $data->getUpdatedColumns();
-		$values_create = $data->getUpdatedColumnValues();
-		
-		$query = MySQLiTools::makeInsertStatement('tbl_user_settings', $columns_create, 'ON DUPLICATE KEY UPDATE '.MySQLiTools::makeUpdateColumns($columns));
+			/* Special create fields */
+			$data->removeExcludeField(UserSetting::FIELD_USER);
+			$data->removeExcludeField(UserSetting::FIELD_IDENT);
+			/* Special create fields end */
 
-		$query = $this->masterQuery(new MySQLiQueryStatement($query, $values_create, $user, $ident, $values));
+			$columns_create = $data->getUpdatedColumns();
+			$values_create = $data->getUpdatedColumnValues();
 
-		/* After edit actions */
-		/* After edit actions end */
+			$query = MySQLiTools::makeInsertStatement('tbl_user_settings', $columns_create, 'ON DUPLICATE KEY UPDATE '.MySQLiTools::makeUpdateColumns($columns));
 
-		if($query->getAffectedRows() > 0){
-			return true;
+			$query = $this->masterQuery(new MySQLiQueryStatement($query, $values_create, $values));
+
+			/* After edit actions */
+			/* After edit actions end */
+
+			if($query->getAffectedRows() > 0){
+				return true;
+			} else {
+				return false;
+			}
 		} else {
-			return false;
+			return true;
 		}
 	}
 
