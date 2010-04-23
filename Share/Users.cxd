@@ -57,13 +57,11 @@
 				<exec>UserSettingList('\1')</exec>
 				<file>{CORELIB}/Users/lib/http/get/user-setting.php</file>
 			</page>
-			
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Settings\/add\/$/</expr>
 				<exec>create('\1')</exec>
 				<file>{CORELIB}/Users/lib/http/get/user-setting.php</file>
 			</page>
-			
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Settings\/([a-zA-Z\-_0-9]+)\/delete\/$/</expr>
 				<exec>delete('\1', '\2')</exec>
@@ -102,13 +100,11 @@
 				<exec>edit('\1')</exec>
 				<file>{CORELIB}/Users/lib/http/post/user-permission.php</file>
 			</page>
-			
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Settings\/add\/$/</expr>
 				<exec>create('\1')</exec>
 				<file>{CORELIB}/Users/lib/http/post/user-setting.php</file>
 			</page>
-						
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Settings\/([a-zA-Z\-_0-9]+)\/$/</expr>
 				<exec>edit('\1', '\2')</exec>
