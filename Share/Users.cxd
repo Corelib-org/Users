@@ -124,7 +124,7 @@
 			<group title="Users" id="users" url="/corelib/extensions/Users/">
 				<item url="/corelib/extensions/Users/Permissions/">Permissions</item>
 			</group>
-		</menu>	
+		</menu>
 		<database>
 			<engine id="MySQLi">
 				<scripts>{CORELIB}/Users/Share/Database/MySQL</scripts>
