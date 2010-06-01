@@ -16,7 +16,7 @@
 				<url>/corelib/extensions/Users/create/</url>
 				<file>{CORELIB}/Users/lib/http/get/user.php</file>
 				<exec>create</exec>
-			</page>			
+			</page>
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/edit\/$/</expr>
 				<exec>edit('\1')</exec>
@@ -36,7 +36,7 @@
 				<url>/corelib/extensions/Users/Permissions/create/</url>
 				<file>{CORELIB}/Users/lib/http/get/user-permission.php</file>
 				<exec>create</exec>
-			</page>			
+			</page>
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/Permissions\/([0-9]+)\/edit\/$/</expr>
 				<exec>edit('\1')</exec>
@@ -67,19 +67,19 @@
 				<exec>delete('\1', '\2')</exec>
 				<file>{CORELIB}/Users/lib/http/get/user-setting.php</file>
 			</page>
-			
+
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Settings\/([a-zA-Z\-_0-9]+)\/$/</expr>
 				<exec>edit('\1', '\2')</exec>
 				<file>{CORELIB}/Users/lib/http/get/user-setting.php</file>
-			</page>			
+			</page>
 		</get>
 		<post>
 			<page>
 				<url>/corelib/extensions/Users/create/</url>
 				<file>{CORELIB}/Users/lib/http/post/user.php</file>
 				<exec>create</exec>
-			</page>			
+			</page>
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/edit\/$/</expr>
 				<exec>edit('\1')</exec>
@@ -94,7 +94,7 @@
 				<url>/corelib/extensions/Users/Permissions/create/</url>
 				<file>{CORELIB}/Users/lib/http/post/user-permission.php</file>
 				<exec>create</exec>
-			</page>			
+			</page>
 			<page type="regex">
 				<expr>/^\/corelib\/extensions\/Users\/Permissions\/([0-9]+)\/edit\/$/</expr>
 				<exec>edit('\1')</exec>
@@ -109,7 +109,7 @@
 				<expr>/^\/corelib\/extensions\/Users\/([0-9]+)\/Settings\/([a-zA-Z\-_0-9]+)\/$/</expr>
 				<exec>edit('\1', '\2')</exec>
 				<file>{CORELIB}/Users/lib/http/post/user-setting.php</file>
-			</page>			
+			</page>
 		</post>
 	</pages>
 	<props>
@@ -119,6 +119,12 @@
 			<mode id="settings" prefix="corelib/extensions/Users/" suffix="/Settings/" title="User settings"/>
 		</user-editmodes>
 	</props>
+
+	<!--
+	/**
+	 * Extend Base extension
+	 */
+	 -->
 	<extendprops id="bace91bc-9132-11db-9dfa-0003ffb1de2c">
 		<menu>
 			<group title="Users" id="users" url="/corelib/extensions/Users/">
@@ -134,4 +140,16 @@
 			<resource handle="users">{CORELIB}/Users/Share/web/</resource>
 		</resources>
 	</extendprops>
+
+	<!--
+	/**
+	 * Extend EAV extension if available
+	 */
+	 -->
+	<extendprops id="29a0966c-85b8-11dd-8317-001cc43af296">
+		<entity-types>
+			<entity-type ident="USER-INFORMATION" title="User information (auto-created by Users extension)"/>
+		</entity-types>
+	</extendprops>
+
 </extension>

@@ -429,10 +429,10 @@ class UserList implements Output,CacheableOutput {
 
 				/* Set converters */
 				if(!is_null($this->create_timestamp_converter)){
-					return $item->setCreateTimestampConverter($this->create_timestamp_converter);
+					$item->setCreateTimestampConverter($this->create_timestamp_converter);
 				}
 				if(!is_null($this->last_timestamp_converter)){
-					return $item->setLastTimestampConverter($this->last_timestamp_converter);
+					$item->setLastTimestampConverter($this->last_timestamp_converter);
 				}
 				/* Set converters end */
 

@@ -1,9 +1,10 @@
 <?php
 /* vim: set expandtab tabstop=4 shiftwidth=4 softtabstop=4: */
 /**
- *	User extension handler class.
+ * User extension handler class.
  *
- *	<i>No Description</i>
+ * This file contains the corelib user extension class for handling the
+ * corelib xml configuration.
  *
  * This script is part of the corelib project. The corelib project is
  * free software; you can redistribute it and/or modify

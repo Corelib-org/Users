@@ -171,6 +171,7 @@ interface DAO_User {
 	public function delete($id);
 }
 
+
 //*****************************************************************//
 //******************** Abstract View classes **********************//
 //*****************************************************************//
@@ -224,9 +225,10 @@ abstract class CompositeUser extends CompositeOutput {
 	 * @see CompositeOutput::addComponent()
 	 * @param CompositeUser $component
 	 */
-	public function addComponent(CompositeUser $component){
+	public function addComponent(Composite $component, $reference=null){
+		assert('$component instanceof CompositeUser');
 		$component->_setUser($this->getUser());
-		return parent::addComponent($component);
+		return parent::addComponent($component, $reference);
 	}
 
 	/**
@@ -523,7 +525,6 @@ class User extends CompositeUser implements CacheableOutput {
 	public function setLastTimestampConverter(Converter $converter){
 		return $this->last_timestamp_converter = $converter;
 	}
-
 	/* Converter methods end */
 
 

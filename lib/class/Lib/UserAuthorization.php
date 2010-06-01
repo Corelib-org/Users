@@ -426,7 +426,7 @@ class UserAuthorization implements Singleton,Output {
 	public function getPermissionManager(){
 		$user = sizeof($this->users) - 1;
 		if(isset($this->users[$user])){
-			return $this->users[$user]['manager'];
+			return $this->users[$user]['permissions'];
 		} else {
 			return false;
 		}
