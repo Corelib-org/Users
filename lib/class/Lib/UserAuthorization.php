@@ -314,6 +314,10 @@ class UserAuthorization implements Singleton,Output {
 		if(is_array($this->users)){
 			$manager = new UserPermissionManager();
 			$user->addComponent($manager);
+			if(!$this->isAnonymous()){
+				$user->setLastTimestamp(time());
+				$user->commit();
+			}
 			$manager->reload();
 
 			$this->users[] = array('user' => $user,
