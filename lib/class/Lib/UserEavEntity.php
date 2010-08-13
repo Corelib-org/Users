@@ -79,6 +79,19 @@ class UserEavEntity extends CompositeUser {
 		return $this->entity->getByReferenceObject($this->type, get_class($this->getUser()), $this->getUser()->getID());
 	}
 
+	public function setEavAttributeData($field='EAV'){
+		$this->_getEavEntity();
+		$this->_getEavEntityType();
+		$this->entity->setEavAttributeData($field);
+	}
+
+	public function commit(){
+		$this->_getEavEntity();
+		$this->_getEavEntityType();
+		$this->entity->setReferenceObject($this->type, get_class($this->getUser()), $this->getUser()->getID());
+		$this->entity->commit();
+	}
+
 	private function _getEavEntity(){
 		if(is_null($this->entity)){
 			$this->entity = new EavEntity();

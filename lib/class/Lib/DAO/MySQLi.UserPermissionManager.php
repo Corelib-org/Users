@@ -95,7 +95,8 @@ class MySQLi_UserPermissionManager extends DatabaseDAO implements Singleton,DAO_
 	 * @see DAO_UserPermissionManager::getList()
 	 */
 	public function getList($user){
-		$query = 'SELECT `comment`, `expire_timestamp`, '.MySQLi_UserPermission::getSelectColumns().'
+		$query = 'SELECT `comment`,
+		                 IF(`expire_timestamp` IS NULL, NULL, UNIX_TIMESTAMP(`expire_timestamp`)) AS expire_timestamp, '.MySQLi_UserPermission::getSelectColumns().'
 		          FROM `tbl_users_has_permissions`
 		          INNER JOIN `tbl_user_permissions` ON `'.UserPermission::FIELD_ID.'`=`fk_user_permissions`
 		          WHERE `fk_users`=\''.$this->escapeString($user).'\'';

@@ -235,6 +235,9 @@ class UserPermissionManager extends CompositeUser {
 			$this->_getDAO();
 			$res = $this->dao->getList($this->getUser()->getID());
 			while ($out = $res->fetchArray()) {
+				if(!is_null($out['expire_timestamp'])){
+					$out['expire_timestamp'] = (int) $out['expire_timestamp'];
+				}
 				$this->grant(new UserPermission($out['pk_user_permissions'], $out), $out['comment'], $out['expire_timestamp']);
 			}
 		}
@@ -267,7 +270,16 @@ class UserPermissionManager extends CompositeUser {
 	public function getXML(DOMDocument $xml){
 		$manager = $xml->createElement('user-permission-manager');
 		foreach ($this->permissions as $permission){
-			$manager->appendChild($permission['permission']->getXML($xml));
+			$permissionXML = $manager->appendChild($permission['permission']->getXML($xml));
+			if(isset($permission['expire'])){
+				$permissionXML->setAttribute('expire-timestamp', $permission['expire']);
+				if(time() > $permission['expire']){
+					$permissionXML->setAttribute('expired', 'true');
+				}
+			}
+			if(isset($permission['comment'])){
+				$permissionXML->appendChild($xml->createElement('comment', $permission['comment']));
+			}
 		}
 		return $manager;
 	}

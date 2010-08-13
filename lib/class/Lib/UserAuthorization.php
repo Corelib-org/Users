@@ -287,6 +287,7 @@ class UserAuthorization implements Singleton,Output {
 		$this->logout();
 		$this->anonymous = false;
 		$this->users = array();
+
 		SessionHandler::getInstance()->regenerateID();
 		return $this->_authorize($user);
 	}
@@ -318,8 +319,8 @@ class UserAuthorization implements Singleton,Output {
 				$user->setLastTimestamp(time());
 				$user->commit();
 			}
-			$manager->reload();
 
+			$manager->reload();
 			$this->users[] = array('user' => $user,
 			                       'permissions' => $manager);
 
