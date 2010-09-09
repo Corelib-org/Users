@@ -81,7 +81,7 @@ class UserList implements Output,CacheableOutput {
 	 * @var DAO_UserList
 	 * @internal
 	 */
-	private $dao = null;
+	protected $dao = null;
 
 	/* Converter properties */
 	private $create_timestamp_converter = null;
@@ -487,7 +487,7 @@ class UserList implements Output,CacheableOutput {
 	 * @return boolean true
 	 * @internal
 	 */
-	private function _getDAO(){
+	protected function _getDAO(){
 		if(is_null($this->dao)){
 			$this->dao = Database::getDAO('UserList');
 		}

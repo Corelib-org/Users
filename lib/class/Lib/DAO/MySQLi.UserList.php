@@ -128,7 +128,7 @@ class MySQLi_UserList extends DatabaseDAO implements Singleton,DAO_UserList {
 	 * @return string filter statement
 	 * @internal
 	 */
-	private function _prepareFilterStatements(DatabaseListHelperFilter $filter){
+	protected function _prepareFilterStatements(DatabaseListHelperFilter $filter){
 		$filters['where'] = 'WHERE 1 ';
 		$filters['join'] = '';
 
