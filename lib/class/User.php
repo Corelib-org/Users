@@ -31,6 +31,15 @@
  * @since Version 4.0
  */
 
+
+/**
+ *	Define default salt for salting passwords if salt not defined.
+ */
+if(!defined('USER_PASSWORD_SALT')){
+	define('USER_PASSWORD_SALT', '6468408f07e495af87fa32cd5b7b876c5d567a20');
+}
+
+
 //*****************************************************************//
 //************************* Event Classes *************************//
 //*****************************************************************//
@@ -427,7 +436,8 @@ class User extends CompositeUser implements CacheableOutput {
 	 * @return boolean true on success, else return false
 	 */
 	public function setPassword($password){
-		$this->password = sha1($password);
+		
+		$this->password = sha1(USER_PASSWORD_SALT.$password);
 		$this->datahandler->set(self::FIELD_PASSWORD, $this->password);
 		return true;
 	}
@@ -607,7 +617,7 @@ class User extends CompositeUser implements CacheableOutput {
 	 * @return boolean true if passwords match, else return false
 	 */
 	public function checkPassword($password){
-		return ($this->password == sha1($password));
+		return ($this->password == sha1(USER_PASSWORD_SALT.$password));
 	}
 
 	/**
