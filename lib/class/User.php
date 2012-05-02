@@ -436,7 +436,7 @@ class User extends CompositeUser implements CacheableOutput {
 	 * @return boolean true on success, else return false
 	 */
 	public function setPassword($password){
-		
+
 		$this->password = sha1(USER_PASSWORD_SALT.$password);
 		$this->datahandler->set(self::FIELD_PASSWORD, $this->password);
 		return true;
@@ -448,9 +448,14 @@ class User extends CompositeUser implements CacheableOutput {
 	 * @param bool $activated
 	 * @return boolean true on success, else return false
 	 */
-	public function setActivated($activated){
+	public function setActivated($activated, $activation_string=null){
 		$this->activated = $activated;
 		$this->datahandler->set(self::FIELD_ACTIVATED, $activated);
+
+		if(!$activated && !is_null($activation_string)){
+			$this->activation_string = $activation_string;
+			$this->datahandler->set(self::FIELD_ACTIVATION_STRING, $activation_string);
+		}
 		return true;
 	}
 
@@ -614,10 +619,15 @@ class User extends CompositeUser implements CacheableOutput {
 	 * Compare plaintext password with stored password.
 	 *
 	 * @param string $password
+	 * @param string $custom_salt Provide a one-time custom prefix salt string, if a custom salt is given, the password must be passed sha1 checksummed
 	 * @return boolean true if passwords match, else return false
 	 */
-	public function checkPassword($password){
-		return ($this->password == sha1(USER_PASSWORD_SALT.$password));
+	public function checkPassword($password, $custom_salt=null){
+		if(is_null($custom_salt)){
+			return ($this->password == sha1(USER_PASSWORD_SALT.$password));
+		} else {
+			return (sha1($custom_salt.$this->password) == $password);
+		}
 	}
 
 	/**
@@ -636,7 +646,6 @@ class User extends CompositeUser implements CacheableOutput {
 		if(!is_null($activation_string) && $activation_string != $this->activation_string){
 			return false;
 		}
-		$this->setActivationString(null);
 		$this->setActivated(true);
 		return true;
 	}
