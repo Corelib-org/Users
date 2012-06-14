@@ -132,7 +132,7 @@ final class UserAuthorizationPointerManager implements Singleton {
 	 */
 	public static function getInstance(){
 		if(is_null(self::$instance)){
-			$session = SessionHandler::getInstance();
+			$session = Session::getInstance();
 			if($session->check(__CLASS__)){
 				self::$instance	= unserialize($session->get(__CLASS__));
 			} else {
@@ -182,7 +182,7 @@ final class UserAuthorizationPointerManager implements Singleton {
 	 * @internal
 	 */
 	public function store(){
-		$session = SessionHandler::getInstance();
+		$session = Session::getInstance();
 		$session->set(get_class($this), serialize($this));
 	}
 

@@ -412,7 +412,6 @@ class UserList implements Output,CacheableOutput {
 
 		if($this->paging){
 			$count = $this->getCount();
-			$list->setAttribute('count', $count);
 			$this->setOffset($this->limit * ($this->paging_page - 1));
 			$list->appendChild(XMLTools::makePagerXML($xml, $count, $this->limit, $this->paging_page));
 		}
