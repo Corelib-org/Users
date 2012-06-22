@@ -289,7 +289,7 @@ class UserAuthorization implements Singleton,Output {
 		$this->anonymous = false;
 		$this->users = array();
 
-		SessionHandler::getInstance()->regenerateID();
+		Session::getInstance()->regenerateID();
 		return $this->_authorize($user);
 	}
 
