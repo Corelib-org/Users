@@ -267,7 +267,6 @@ class UserAuthorization implements Singleton,Output {
 	 */
 	public static function getInstance(){
 		if(is_null(self::$instance)){
-			ob_end_flush();
 			$session = Session::getInstance();
 			if($session->check(__CLASS__)){
 				self::$instance	= unserialize($session->get(__CLASS__));

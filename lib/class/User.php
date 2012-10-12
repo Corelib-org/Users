@@ -39,6 +39,10 @@ if(!defined('USER_PASSWORD_SALT')){
 	define('USER_PASSWORD_SALT', '6468408f07e495af87fa32cd5b7b876c5d567a20');
 }
 
+if(!defined('USER_PASSWORD_V2')){
+	define('USER_PASSWORD_V2', false);
+}
+
 
 //*****************************************************************//
 //************************* Event Classes *************************//
@@ -292,6 +296,8 @@ class User extends CompositeUser implements CacheableOutput {
 	const FIELD_LAST_TIMESTAMP = 'last_timestamp';
 	/* Field constants end */
 
+	const PASSWORD_HASH_BLOWFISH = '$2a$10$';
+
 	/* Enum constants */
 	/* Enum constants end */
 
@@ -434,10 +440,14 @@ class User extends CompositeUser implements CacheableOutput {
 	 *
 	 * @param string $password
 	 * @return boolean true on success, else return false
+	 * @see User::checkPassword()
 	 */
 	public function setPassword($password){
-
-		$this->password = sha1(USER_PASSWORD_SALT.$password);
+		if(USER_PASSWORD_V2){
+			$this->password = $this->_makePasswordHash($password);
+		} else {
+			$this->password = sha1(USER_PASSWORD_SALT.$password);
+		}
 		$this->datahandler->set(self::FIELD_PASSWORD, $this->password);
 		return true;
 	}
@@ -482,6 +492,7 @@ class User extends CompositeUser implements CacheableOutput {
 		$this->datahandler->set(self::FIELD_LAST_TIMESTAMP, $last_timestamp);
 		return true;
 	}
+
 	/**
 	 * Set username.
 	 *
@@ -623,10 +634,18 @@ class User extends CompositeUser implements CacheableOutput {
 	 * @return boolean true if passwords match, else return false
 	 */
 	public function checkPassword($password, $custom_salt=null){
-		if(is_null($custom_salt)){
-			return ($this->password == sha1(USER_PASSWORD_SALT.$password));
+		if(!USER_PASSWORD_V2 || strlen($this->password) == 40){
+			if(is_null($custom_salt)){
+				$state = ($this->password == sha1(USER_PASSWORD_SALT.$password));
+			} else {
+				$state = (sha1($custom_salt.$this->password) == $password);
+			}
+			if(USER_PASSWORD_V2 && $state === true){
+				$this->setPassword($password);
+			}
+			return $state;
 		} else {
-			return (sha1($custom_salt.$this->password) == $password);
+			return $this->_checkPasswordHash($password, $this->password);
 		}
 	}
 
@@ -854,6 +873,40 @@ class User extends CompositeUser implements CacheableOutput {
 		} else {
 			return false;
 		}
+	}
+
+	/**
+	 * Create new password hash.
+	 *
+	 * @param $password
+	 * @param $algorithm
+	 *
+	 * @return string
+	 */
+	function _makePasswordHash($password, $algorithm=User::PASSWORD_HASH_BLOWFISH){
+		// check if openssl_random_pseudo_bytes() is present, otherwise we will generate
+		// a new salt using mt_rand(), which is less secure
+		if(function_exists('openssl_random_pseudo_bytes')){
+			$salt = bin2hex(openssl_random_pseudo_bytes(64));
+		} else {
+			$salt = '';
+			for($i = 0; $i < 128; $i++){
+				$salt .= dechex(mt_rand(0,15));
+			}
+		}
+		return crypt($password, $algorithm.$salt.'$');
+	}
+
+	/**
+	 * Check if password is the same as hash.
+	 *
+	 * @param $password
+	 * @param $hash
+	 *
+	 * @return bool true if password is valid
+	 */
+	function _checkPasswordHash($password, $hash){
+		return (crypt($password, $hash) == $hash);
 	}
 
 	/**
