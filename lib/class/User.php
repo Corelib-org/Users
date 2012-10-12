@@ -887,10 +887,10 @@ class User extends CompositeUser implements CacheableOutput {
 		// check if openssl_random_pseudo_bytes() is present, otherwise we will generate
 		// a new salt using mt_rand(), which is less secure
 		if(function_exists('openssl_random_pseudo_bytes')){
-			$salt = bin2hex(openssl_random_pseudo_bytes(64));
+			$salt = bin2hex(openssl_random_pseudo_bytes(48));
 		} else {
 			$salt = '';
-			for($i = 0; $i < 128; $i++){
+			for($i = 0; $i < 96; $i++){
 				$salt .= dechex(mt_rand(0,15));
 			}
 		}
