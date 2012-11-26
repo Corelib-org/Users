@@ -28,6 +28,8 @@
  * @version 1.1.0 ($Id$)
  * @filesource
  */
+use Corelib\Base\Converters\Converter, Corelib\Base\PageFactory\Output;
+use Corelib\Base\Event\Action as EventAction, Corelib\Base\Event\Event;
 
 //*****************************************************************//
 //************************* Event Classes *************************//

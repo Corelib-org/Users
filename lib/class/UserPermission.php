@@ -30,6 +30,8 @@
  * @link http://www.corelib.org/
  * @version 1.1.0 ($Id$)
  */
+use Corelib\Base\Converters\Converter, Corelib\Base\PageFactory\Output;
+use Corelib\Base\Event\Action as EventAction, Corelib\Base\Event\Event;
 
 //*****************************************************************//
 //************************* Event Classes *************************//

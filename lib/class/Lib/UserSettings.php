@@ -30,7 +30,7 @@
  * @version 1.1.0 ($Id$)
  * @since Version 4.0
  */
-
+use Corelib\Base\Event\Action as EventAction, Corelib\Base\Event\Event;
 
 //*****************************************************************//
 //************ UserSettingsCommitChangesEvent class ***************//

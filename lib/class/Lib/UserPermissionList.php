@@ -30,7 +30,7 @@
  * @link http://www.corelib.org/
  * @version 1.1.0 ($Id$)
  */
-
+use Corelib\Base\PageFactory\Output;
 
 //*****************************************************************//
 //************************* DAO Interface *************************//

@@ -33,6 +33,9 @@
  * @link http://www.corelib.org/
  * @version 2.0.0 ($Id: EventHandler.php 5186 2010-03-05 20:28:04Z wayland $)
  */
+use Corelib\Base\Converters\Converter, Corelib\Base\PageFactory\Output;
+use Corelib\Base\ServiceLocator\Locator;
+use Corelib\Base\Event\Action as EventAction, Corelib\Base\Event\Event as Event;
 
 //*****************************************************************//
 //************ UserAuthorizationConfirmEvent class ****************//
@@ -267,7 +270,7 @@ class UserAuthorization implements Singleton,Output {
 	 */
 	public static function getInstance(){
 		if(is_null(self::$instance)){
-			$session = Session::getInstance();
+			$session = Locator::get('Corelib\Base\Session\Handler');
 			if($session->check(__CLASS__)){
 				self::$instance	= unserialize($session->get(__CLASS__));
 			} else {
@@ -444,7 +447,7 @@ class UserAuthorization implements Singleton,Output {
 	 * @internal
 	 */
 	public function store(){
-		$session = Session::getInstance();
+		$session = Locator::get('Corelib\Base\Session\Handler');
 		$session->set(__CLASS__, serialize($this));
 	}
 
@@ -472,8 +475,8 @@ class UserAuthorization implements Singleton,Output {
 }
 
 $eventHandler = EventHandler::getInstance();
-$eventHandler->register(new UserAuthorizationConfirmEvent(), 'EventRequestStart');
-$eventHandler->register(new UserAuthorizationStoreEvent(), 'EventRequestEnd');
-$eventHandler->register(new UserAuthorizationPutSettingsXML(), 'EventApplyDefaultSettings');
-$eventHandler->register(new UserAuthorizationPointerManagerStoreEvent(), 'EventRequestEnd');
+$eventHandler->register(new UserAuthorizationConfirmEvent(), 'Corelib\Base\PageFactory\Events\RequestStart');
+$eventHandler->register(new UserAuthorizationStoreEvent(), 'Corelib\Base\PageFactory\Events\RequestEnd');
+$eventHandler->register(new UserAuthorizationPutSettingsXML(), 'Corelib\Base\PageFactory\Events\ApplySettings');
+$eventHandler->register(new UserAuthorizationPointerManagerStoreEvent(), 'Corelib\Base\PageFactory\Events\RequestEnd');
 ?>

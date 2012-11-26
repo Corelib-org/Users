@@ -33,6 +33,8 @@
  * @link http://www.corelib.org/
  * @version 2.0.0 ($Id: EventHandler.php 5186 2010-03-05 20:28:04Z wayland $)
  */
+use Corelib\Base\ServiceLocator\Locator;
+use Corelib\Base\Event\Action as EventAction, Corelib\Base\Event\Event as Event;
 
 //*****************************************************************//
 //******* UserAuthorizationPointerManagerStoreEvent class *********//
@@ -132,7 +134,7 @@ final class UserAuthorizationPointerManager implements Singleton {
 	 */
 	public static function getInstance(){
 		if(is_null(self::$instance)){
-			$session = Session::getInstance();
+			$session = Locator::get('Corelib\Base\Session\Handler');
 			if($session->check(__CLASS__)){
 				self::$instance	= unserialize($session->get(__CLASS__));
 			} else {
@@ -182,7 +184,7 @@ final class UserAuthorizationPointerManager implements Singleton {
 	 * @internal
 	 */
 	public function store(){
-		$session = Session::getInstance();
+		$session = Locator::get('Corelib\Base\Session\Handler');
 		$session->set(get_class($this), serialize($this));
 	}
 
