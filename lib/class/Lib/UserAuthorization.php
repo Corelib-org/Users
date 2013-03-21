@@ -36,6 +36,7 @@
 use Corelib\Base\Converters\Converter, Corelib\Base\PageFactory\Output;
 use Corelib\Base\ServiceLocator\Locator;
 use Corelib\Base\Event\Action as EventAction, Corelib\Base\Event\Event as Event;
+use \Session as Session;
 
 //*****************************************************************//
 //************ UserAuthorizationConfirmEvent class ****************//

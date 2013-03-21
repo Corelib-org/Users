@@ -371,6 +371,17 @@ class User extends CompositeUser implements CacheableOutput {
 	}
 
 	/**
+	 * Get password.
+	 *
+	 * Get encrypted user password
+	 *
+	 * @return string password
+	 */
+	public function getPassword(){
+		return $this->password;
+	}
+
+	/**
 	 * Get email.
 	 *
 	 * @return string email
